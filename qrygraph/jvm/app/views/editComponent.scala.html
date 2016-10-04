@@ -1,0 +1,30 @@
+@import models.Tables.User
+@import b3.vertical.fieldConstructor // Declares a vertical field constructor as default
+
+@import models.Tables.PigQuery
+@import controllers.forms.PigComponentForm
+@(usersRow: User,queryId:String, pigQueryForm: Form[PigComponentForm])(implicit messages: Messages)
+
+@header("Create Query", usersRow) {
+    <!-- Page Content -->
+    <div class="container">
+        @*//todo fix id*@
+        <div class="row">
+        @b3.form(routes.Components.editPOST(queryId)) {
+            @b3.text(pigQueryForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")
+            @b3.text(pigQueryForm("description"), '_label -> "Description", 'placeholder -> "Goal of this query")
+
+            @if(pigQueryForm.hasGlobalErrors) {
+                @for(error <- pigQueryForm.globalErrors) {
+                    <div class="alert alert-danger">
+                    @Messages(error.messages, error.args)
+                    </div>
+                }
+            }
+
+            @b3.submit('class -> "btn btn-default") { Edit }
+        }
+        </div>
+            <!-- /.row -->
+    </div>
+}

@@ -1,0 +1,34 @@
+@import b3.vertical.fieldConstructor
+@import views.Navigation
+@import models.Tables.User
+@import controllers.forms.SettingsForm
+@(usersRow: User, settingsForm: Form[SettingsForm])(implicit messages: Messages)
+
+@header("Settings", usersRow, Some(Navigation.Settings)) {
+    <div class="container">
+        <div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Settings</h1>
+                    <p class="lead">Here you can configure the configuration of QryGraph</p>
+                </div>
+            </div>
+            @b3.form(routes.Settings.indexPOST()) {
+                <h3>Configure Hadoop Connection</h3>
+                @b3.text(settingsForm("hadoopUser"), '_label -> "Hadoop login user", 'placeholder -> "root")
+                @b3.text(settingsForm("qrygraphFolder"), '_label -> "Main folder for QryGraph", 'placeholder -> "/user/root")
+                @b3.text(settingsForm("fsDefaultName"), '_label -> "HDFS URL", 'placeholder -> "hdfs://<namenode-hostname>:<port>")
+                @b3.text(settingsForm("mapredJobTracker"), '_label -> "MapReduce URL", 'placeholder -> "<jobtracker-hostname>:<port>")
+
+                @if(settingsForm.hasGlobalErrors) {
+                    @for(error <- settingsForm.globalErrors) {
+                        <div class="alert alert-danger">
+                        @Messages(error.messages, error.args)
+                        </div>
+                    }
+                }
+                @b3.submit('class -> "btn btn-default") { Apply }
+            }
+        </div>
+    </div>
+}

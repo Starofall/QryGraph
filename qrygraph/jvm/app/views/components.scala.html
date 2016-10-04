@@ -1,0 +1,52 @@
+@import views.Navigation
+@import helper._
+@import models.Tables._
+@import models.Tables.User
+@(usersRow: User, queries: Seq[Tables.PigComponent])
+
+@componentsDetailsBox(component: Tables.PigComponent) = {
+    <div class="col-lg-12">
+        <div class="panel panel-default queryPanel">
+            <div class="panel-heading">
+                <i class="fa fa-exclamation fa-fw"></i>
+                <span class="title">@component.name</span>
+                <span class="owner">by
+                    <a href="#">@{
+                        usersRow.firstName
+                    } @{
+                        usersRow.lastName
+                    }</a>
+                </span>
+                <div class="pull-right">
+                    @form(routes.Components.deleteComponent(component.id), 'class -> "inline") {
+                        <input class="btn btn-xs btn-danger" type="submit" value="Delete">
+                    }
+                    <a href="@routes.Components.editGET(component.id)" class="btn btn-xs btn-warning">Edit</a>
+                    <a href="@routes.Components.editor(component.id)" class="btn btn-xs btn-success">QueryEditor</a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-lg-4">
+                    <div class="well well-sm">@component.description</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+@header("Components", usersRow, Some(Navigation.Components)) {
+        <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Components</h1>
+                <p class="lead">These are the components you currently have access to:
+                    <a href="@routes.Components.createGET" class="pull-right btn btn-sm btn-primary">Create new component</a>
+                </p>
+            </div>
+        </div>
+        @queries.map(componentsDetailsBox)
+    </div>
+}

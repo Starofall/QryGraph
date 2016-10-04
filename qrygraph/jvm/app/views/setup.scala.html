@@ -1,0 +1,39 @@
+@import b3.vertical.fieldConstructor
+@import controllers.forms.LoginForm
+@import controllers.forms.SetupForm
+@(setupForm: Form[SetupForm])(implicit messages: Messages)
+
+@frame("Setup")(Html("")) {
+    <div class="container">
+        <div>
+            <h2>Setup QryGraph</h2><br>
+            <p>Please enter the following information to get the application running</p>
+
+
+            @b3.form(routes.Setup.indexPOST()) {
+                <h3>Initial User</h3>
+                @b3.email(setupForm("email"), '_label -> "Email", 'placeholder -> "example@mail.com")
+                @b3.password(setupForm("password"), '_label -> "Password", 'placeholder -> "Password")
+                @b3.text(setupForm("firstName"), '_label -> "First Name", 'placeholder -> "John")
+                @b3.text(setupForm("lastName"), '_label -> "Second Name", 'placeholder -> "Doe")
+
+                <h3>Configure Hadoop Connection</h3>
+                @b3.text(setupForm("hadoopUser"), '_label -> "Hadoop login user", 'placeholder -> "root")
+                @b3.text(setupForm("qrygraphFolder"), '_label -> "Main folder for QryGraph", 'placeholder -> "/user/root")
+                @b3.text(setupForm("fsDefaultName"), '_label -> "HDFS URL", 'placeholder -> "hdfs://<namenode-hostname>:<port>")
+                @b3.text(setupForm("mapredJobTracker"), '_label -> "MapReduce URL", 'placeholder -> "<jobtracker-hostname>:<port>")
+
+                @if(setupForm.hasGlobalErrors) {
+                    @for(error <- setupForm.globalErrors) {
+                        <div class="alert alert-danger">
+                        @Messages(error.messages, error.args)
+                        </div>
+                    }
+                }
+                @b3.submit('class -> "btn btn-default") { Start QryGraph }
+            }
+        </div>
+    </div>
+
+
+}

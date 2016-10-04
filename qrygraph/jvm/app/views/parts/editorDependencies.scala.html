@@ -1,0 +1,89 @@
+@import play.api.Mode
+@(cookies: Cookies, app: play.api.Application)
+<!-- Third-Party Libraries -->
+<script src="/assets/libs/jquery.js"></script>
+<script src="/assets/libs/jquery-ui.js"></script>
+<script src="/assets/libs/jquery.ui.touch-punch.js"></script>
+<script src="/assets/libs/underscore.js"></script>
+<script src="/assets/libs/backbone.js"></script>
+<script src="/assets/libs/hammer.min.js"></script>
+<script src="/assets/libs/bootstrap.min.js"></script>
+    <!-- Built-in Libraries -->
+<script src="/assets/libs/CircularBuffer.js"></script>
+    <!-- Dataflow core -->
+<script src="/assets/src/dataflow.js"></script>
+<script src="/assets/src/state.js"></script>
+    <!-- Dataflow Modules -->
+<script src="/assets/src/modules/graph.js"></script>
+<script src="/assets/src/modules/node.js"></script>
+<script src="/assets/src/modules/input.js"></script>
+<script src="/assets/src/modules/output.js"></script>
+<script src="/assets/src/modules/edge.js"></script>
+<script src="/assets/src/modules/graph-view.js"></script>
+<script src="/assets/src/modules/node-view.js"></script>
+<script src="/assets/src/modules/input-view.js"></script>
+<script src="/assets/src/modules/output-view.js"></script>
+<script src="/assets/src/modules/edge-view.js"></script>
+    <!-- Cards -->
+<script src="/assets/src/modules/card.js"></script>
+<script src="/assets/src/modules/card-view.js"></script>
+<script src="/assets/src/modules/menucard.js"></script>
+<script src="/assets/src/modules/menucard-view.js"></script>
+<script src="/assets/src/modules/node-inspect-view.js"></script>
+<script src="/assets/src/modules/edge-inspect-view.js"></script>
+    <!-- Nodes (some basics to extend) -->
+<script src="/assets/src/nodes/base.js"></script>
+<script src="/assets/src/nodes/base-resizable.js"></script>
+    <!-- Nodes (subgraph functionality) -->
+<script src="/assets/src/nodes/dataflow-input.js"></script>
+<script src="/assets/src/nodes/dataflow-output.js"></script>
+<script src="/assets/src/nodes/dataflow-subgraph.js"></script>
+
+<link rel="stylesheet" href="/assets/themes/default/font-proximanova.css">
+<link rel="stylesheet" href="/assets/themes/default/font-awesome.css">
+    <!-- Theme -->
+<link rel="stylesheet" href="/assets/themes/default/dataflow.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/node.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/edge.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/port.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/card.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/jqui.css">
+<link rel="stylesheet" href="/assets/themes/default/modules/search.css">
+
+<link rel="stylesheet" href="/assets/stylesheets/editor.css">
+
+@if(app.mode == Mode.Dev) {
+    <script src="/assets/qrygraphjs-fastopt.js" type="text/javascript"></script>
+} else {
+    <script src="/assets/qrygraphjs-opt.js" type="text/javascript"></script>
+}
+<script src="/assets/qrygraphjs-launcher.js" type="text/javascript"></script>
+
+
+<script>
+        $(function ($) {
+            // Test 2 graphs
+            var dataflow = new window.Dataflow({
+                appendTo: "#graphPlane",
+                debug: "true"
+            });
+            // Load test graph
+            var g = dataflow.loadGraph(
+                    {
+                        "nodes": [],
+                        "edges": []
+                    }
+            );
+            g.trigger("change");
+            window.d = $(".dataflow").data("dataflow");
+
+            window.ViewHelper = {
+                doAccordion: function () {
+                    $(".accordion").accordion({header: "span", collapsible: true, active: false});
+                }
+            };
+        });
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+</script>

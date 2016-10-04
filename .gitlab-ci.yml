@@ -1,0 +1,18 @@
+image: e8kor/sbt-docker
+
+cache:
+  key: "buildCache"
+  untracked: true
+  paths:
+    - project/
+    - qrygraph/js/target
+    - qrygraph/jvm/target
+    - ~/sbt
+
+services:
+  - docker:dind
+
+toDockerPush:
+  script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN registry.gitlab.com
+    - sbt -Dsbt.ivy.home=~/sbt -Divy.home=~/sbt -Dsbt.boot.directory=~/sbt/boot/ dockerBuildAndPush

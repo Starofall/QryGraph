@@ -1,0 +1,100 @@
+@import models.Tables.User
+@import qrygraph.shared.data.DataSource
+@import models.Tables.PigComponent
+@import views.Navigation
+@import qrygraph.shared.data.ServerComponent
+@(usersRow: User, cookies: Cookies, id: String, isComponent: Boolean, dataSources: List[DataSource], componentNamesAndIds: List[ServerComponent])(implicit app: play.api.Application)
+
+@header("Editor", usersRow, if(isComponent){
+    Some(Navigation.Components)
+}else{
+    Some(Navigation.Queries)
+}) {
+    @parts.editorDependencies(cookies, app)
+
+    <div class="container-fluid" style="height: 100%">
+        <div class="row">
+            <div id="leftToolbar">
+                <div>
+                    <a id="undoButtonEnabled" class="btn" href="#" style="display: none" onclick="UIListener().undoChange()">
+                        <i class="fa fa-undo fa-fw" style="color: black" data-toggle="tooltip" data-placement="bottom" title="Undo change"></i>
+                    </a>
+                    <a id="undoButtonDisabled" class="btn">
+                        <i class="fa fa-undo fa-fw" style="color: lightgray" data-toggle="tooltip" data-placement="bottom" title="No last change"></i>
+                    </a>
+                    <a id="deployButtonEnabled" class="btn" style="display: none" onclick="UIListener().deployGraph()">
+                        <i class="fa fa-floppy-o fa-fw" style="color: black" data-toggle="tooltip" data-placement="bottom" title="Deploy Graph"></i>
+                    </a>
+                    <a id="deployButtonDisabled" class="btn">
+                        <i class="fa fa-floppy-o fa-fw" style="color: lightgray" data-toggle="tooltip" data-placement="bottom" title="Already deployed"></i>
+                    </a>
+                    <a id="revertToDeployedButton" class="btn" onclick="UIListener().revertToDeployed()">
+                        <i class="fa fa-download fa-fw" style="color: black" data-toggle="tooltip" data-placement="bottom" title="Revert to deployed"></i>
+                    </a>
+                </div>
+                <div>
+                    <h4 class="headlines">Nodes</h4>
+                </div>
+
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    @parts.buttonGroup("Databases", dataSources.map(x => (x.name, x.id)))
+                    @parts.buttonGroup("PigLatin", List("COGroup", "Cross", "Custom", "Distinct", "Filter", "Foreach", "Group", "Join", "Limit", "Order", "Sample"/*,"Split"*/, "Union").map(x => (x, x)))
+                    @parts.buttonGroup("Component", componentNamesAndIds.map(x => (x.name, x.id)))
+                </div>
+                <div>
+                    <h4 class="headlines">Compiled Pig</h4>
+                    <div id="compilation" style="font-size: xx-small" class="well well-sm" ></div>
+                </div>
+            </div>
+
+            <div id="rightPlane">
+                <div id="rightToolbar" style="overflow-y: auto">
+                    <div class="col-xs-12">
+                        <h4>Description</h4>
+                        <div id="nodeDescription">
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <h4>Edit</h4>
+                        <div id="nodeEditArea">
+                            @*Here the nodes add there editing html*@
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <h4>Return types</h4>
+                        <div id="returnTypesArea"></div>
+                    </div>
+                    <div class="col-xs-12">
+                        <h4>Node example data</h4>
+                        <input id="updateExamplesButton" type='button' value='Update examples' onclick="UIListener().requestExamples()" class="btn btn-primary btn-xs">
+                        <div id="dummyData">
+                            <div id="resultData"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="editorPlane" class="fullHeightWidth">
+                    <div id="graphPlane" class="fullHeightWidth"></div>
+                    <div id="queryStatusIcon">
+                        <i id="queryWrongIcon" class="fa fa-times fa-2x fa-fw"></i>
+                        <i id="queryCheckingIcon" class="fa fa-refresh fa-2x fa-spin fa-fw"></i>
+                        <i id="queryValidIcon" class="fa fa-check fa-2x fa-fw"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+            // Server define the configuration of the client
+            window.runConfiguration = {
+                authToken: "@cookies.get("qgtoken").get.value",
+                @if(isComponent){
+                    queryId: "",
+                    componentId: "@id"
+                }else{
+                    queryId: "@id",
+                    componentId: ""
+                }
+            }
+    </script>
+}

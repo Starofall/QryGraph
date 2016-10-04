@@ -1,0 +1,2 @@
+docker build -t starofall/qrygraph .
+docker push starofall/qrygraph

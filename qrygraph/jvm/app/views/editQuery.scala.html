@@ -1,0 +1,53 @@
+@import models.Tables.User
+@import b3.vertical.fieldConstructor // Declares a vertical field constructor as default
+
+@import models.Tables.PigQuery
+@import controllers.forms.PigQueryForm
+@(usersRow: User,queryId:String, pigQueryForm: Form[PigQueryForm])(implicit messages: Messages)
+
+@header("Create Query", usersRow) {
+    <!-- Page Content -->
+    <div class="container">
+        @*//todo fix id*@
+        <div class="row">
+        @b3.form(routes.Queries.editPOST(queryId)) {
+            @b3.text(pigQueryForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")
+            @b3.text(pigQueryForm("description"), '_label -> "Description", 'placeholder -> "Goal of this query")
+
+
+            <script src="/assets/libs/jquery.js"></script>
+            <script type="text/javascript" src="/assets/libs/jquery-cron/jquery-cron.js"></script>
+            <link type="text/css" href="/assets/libs/jquery-cron/jquery-cron.css" rel="stylesheet" />
+            <script type="text/javascript">
+                    $(document).ready(function() {
+                        $('#selector').cron({
+                            useGentleSelect: false,
+                            initial: "@pigQueryForm.get.cronjob",
+                            onChange: function() {
+                                $('#cronjob').val($(this).cron("value"));
+                            }
+                        }); // apply cron with default options
+                    });
+            </script>
+            <div class="form-group" id="description_field">
+                <label class="control-label" for="description">Execution Interval</label>
+                <div>
+                <span id='selector'></span> - Resulting Cronjob definition:
+                <input type="text" id="cronjob" name="cronjob" value="">
+                </div>
+            </div>
+
+            @if(pigQueryForm.hasGlobalErrors) {
+                @for(error <- pigQueryForm.globalErrors) {
+                    <div class="alert alert-danger">
+                    @Messages(error.messages, error.args)
+                    </div>
+                }
+            }
+
+            @b3.submit('class -> "btn btn-default") { Edit }
+        }
+        </div>
+            <!-- /.row -->
+    </div>
+}

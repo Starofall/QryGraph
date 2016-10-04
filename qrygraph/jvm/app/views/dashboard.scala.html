@@ -1,0 +1,72 @@
+@import views.Navigation
+@import models.Tables.PigQuery
+@import models.Tables.User
+@(usersRow: User, runStatistic: Map[String, Int], ownQueries: Seq[PigQuery])
+
+    @header("Dashboard", usersRow, Some(Navigation.Dashboard)) {
+        <!-- Page Content -->
+        <div class="container">
+
+            <div class="row">
+                <div class="col-lg-3">
+                    <h1>Jobs Status</h1>
+                    <h3>Running: @{
+                        runStatistic.getOrElse(DBEnums.RunRunning, 0)
+                    }</h3>
+                    <h3>Scheduled: @{
+                        runStatistic.getOrElse(DBEnums.RunScheduled, 0)
+                    }</h3>
+                    <h3>Paused: @{
+                        runStatistic.getOrElse(DBEnums.RunPaused, 0)
+                    }</h3>
+                </div>
+                <div class="col-lg-8">
+                    <h1>Executed Queries</h1>
+                    <canvas id="myChart1" width="800" height="200"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <h1>Queries</h1>
+                    List of queries
+                </div>
+                <div class="col-lg-4">
+                    <h1>Components</h1>
+                    List of components
+                </div>
+                <div class="col-lg-4">
+                    <h1>Settings</h1>
+                    Settings
+                </div>
+            </div>
+                <!-- /.row -->
+        </div>
+            <!-- /.container -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+        <script>
+                var data = {
+                    labels: ["January", "February", "March", "April", "May", "June", "July"],
+                    datasets: [
+                        {
+                            label: "My First dataset",
+                            fillColor: "rgba(220,220,220,0.5)",
+                            strokeColor: "rgba(220,220,220,0.8)",
+                            highlightFill: "rgba(220,220,220,0.75)",
+                            highlightStroke: "rgba(220,220,220,1)",
+                            data: [0, 0, 0, 0, 0, 0, 0]
+                        },
+                        {
+                            label: "My Second dataset",
+                            fillColor: "rgba(151,187,205,0.5)",
+                            strokeColor: "rgba(151,187,205,0.8)",
+                            highlightFill: "rgba(151,187,205,0.75)",
+                            highlightStroke: "rgba(151,187,205,1)",
+                            data: [0, 0, 0, 0, 0, 0, 0]
+                        }
+                    ]
+                };
+                // Get the context of the canvas element we want to select
+                var ctx = document.getElementById("myChart1").getContext("2d");
+                var myBarChart = new Chart(ctx).Bar(data);
+        </script>
+    }

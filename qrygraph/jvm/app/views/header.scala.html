@@ -1,0 +1,20 @@
+@import views.Navigation.NavButton
+@import models.Tables.User
+@(title: String,usersRow: User, activeNav: Option[NavButton] = None)(content: Html)
+
+    @renderNavButton(n: NavButton) = {
+        <li class="@if(activeNav.contains(n)) {active}" >
+            <a href="@n.route">@n.name</a>
+        </li>
+    }
+    @frame(title) {
+            <ul class="nav navbar-nav">
+            @views.Navigation.visibleNavButtons().map(renderNavButton)
+            </ul>
+            <ul class="nav navbar-nav pull-right">
+                <li><a href="#" disabled class="disabled">@usersRow.firstName @usersRow.lastName</a></li>
+                <li><a href="@routes.Auth.logoutGET">Logout</a></li>
+            </ul>
+    } {
+        @content
+    }

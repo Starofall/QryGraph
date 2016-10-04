@@ -1,0 +1,25 @@
+@(title: String)(navbar:Html)(content: Html)
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>QryGraph - @title</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+        <link href="/assets/stylesheets/bootstrap.css" rel="stylesheet">
+        <link href="/assets/stylesheets/qrygraph.css" rel="stylesheet">
+        <link rel="stylesheet" href="/assets/stylesheets/font-awesome.min.css">
+    </head>
+    <body>
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">QryGraph</a>
+                </div>
+                @navbar
+                </div>
+        </nav>
+        @content
+    </body>
+</html>

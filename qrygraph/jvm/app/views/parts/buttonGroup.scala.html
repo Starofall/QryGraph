@@ -1,0 +1,17 @@
+@(name: String, buttons: List[(String,String)])
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingOne">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#@name" aria-expanded="true" aria-controls="@name">
+                @name
+                </a>
+            </h4>
+        </div>
+        <div id="@name" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+            <div class="panel-body nodeCollection">
+            @buttons.map { p =>
+                <a href="#" onclick='UIListener().createNode("@{p._2}")' class="btn btn-sm btn-primary">@p._1 </a>
+            }
+            </div>
+        </div>
+    </div>

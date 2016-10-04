@@ -1,0 +1,21 @@
+@import b3.vertical.fieldConstructor
+@import controllers.forms.LoginForm
+@(loginForm: Form[LoginForm])(implicit messages: Messages)
+
+@frame("Login")(Html("")) {
+    <div class="loginmodal-container">
+        <h2>Login to Your Account</h2><br>
+        @b3.form(routes.Auth.loginPOST()) {
+            @b3.email(loginForm("email"), '_label -> "Email", 'placeholder -> "example@mail.com")
+            @b3.password(loginForm("password"), '_label -> "Password", 'placeholder -> "Password")
+            @if(loginForm.hasGlobalErrors) {
+                @for(error <- loginForm.globalErrors) {
+                    <div class="alert alert-danger">
+                        @Messages(error.messages, error.args)
+                    </div>
+                }
+            }
+            @b3.submit('class -> "btn btn-default loginmodal-submit") { Sign in }
+        }
+    </div>
+}
