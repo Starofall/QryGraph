@@ -8,6 +8,7 @@ import controllers.forms.SetupForm
 import models.Tables.{User, _}
 import models.{DBEnums, DatabaseAccess}
 import org.mindrot.jbcrypt.BCrypt
+import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
@@ -27,6 +28,12 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
 
 
   def indexPOST = Action.async { implicit request =>
+    // On deployment, set the correct home dir
+    if (!System.getProperty("user.dir").contains(":")) {
+      Logger.info("Old user.dir: " + System.getProperty("user.dir"))
+      System.setProperty("user.dir", "/app/")
+      Logger.info("New user.dir: " + System.getProperty("user.dir"))
+    }
     // @todo disable once setup is done
 
     // check form
