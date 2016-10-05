@@ -14,8 +14,8 @@ object GraphFlatten {
 
   //  def log = //println("YEAH")
 
-  /** wrapper class for the dependency evaluation */
-  private case class DepNode(value: Node, var outgoing: List[DepNode] = List(), var incoming: List[DepNode] = List()) {
+  /** wrapper class for the dependency evaluation, tries is a quick fix to resolve the problem of cylces */
+  private case class DepNode(value: Node, var outgoing: List[DepNode] = List(), var incoming: List[DepNode] = List(), var tries: Int = 0) {
     override def toString: String = s"Node(${value.id})"
   }
 
@@ -82,16 +82,19 @@ object GraphFlatten {
       var nextNodes = List[DepNode]()
       // go through the list of unevaluated nodes
       for (node <- list; if !isEvaluated(node)) {
+        node.tries += 1
         //println("Working on node: " + node.value.id)
-        areEvaluated(node.incoming) match {
+        (areEvaluated(node.incoming), node.tries>100) match {
+          case (_, true) =>
+//            println(s"Node ${node.value.id} has been removed due to possible cycle")
           // all incoming nodes are evaluated, add this to done
-          case true =>
-            //println(s"Node ${node.value.id} has all dependencies resolved in $resolvingOrder")
+          case (true,_) =>
+//            println(s"Node ${node.value.id} has all dependencies resolved in $resolvingOrder")
             resolvingOrder ::= node
             nextNodes ++= node.outgoing
           // not all nodes are already evaluated, do this later
-          case false =>
-            //println(s"Node ${node.value.id} has not yet all depenencies - skip for later")
+          case (false,_) =>
+//            println(s"Node ${node.value.id} has not yet all dependencies - skip for later")
             nextNodes ::= node
         }
       }
@@ -117,7 +120,10 @@ object GraphFlatten {
 
     //println("Start DepSearch")
     // run the search - starting with the startingNodes
-    runDepSearch(startingNodes)
+    if (startingNodes.nonEmpty) {
+      runDepSearch(startingNodes)
+    }
+
 
     //println("DepSearch finished - return result values")
     // return the result and revert it

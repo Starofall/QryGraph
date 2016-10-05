@@ -1,5 +1,6 @@
 package qrygraph.shared.data
 
+import qrygraph.shared.compilation.CycleDetection
 import qrygraph.shared.nodes.{ComponentNode, OutputNode}
 
 /** a qrygraph consists of a list of nodes and edges */
@@ -114,7 +115,13 @@ case class PigQueryGraph(nodes: List[Node] = List(), edges: List[Edge] = List())
     val fromPort = fromNode.get.outputs.find(_.id == fromPortId)
     val toPort = toNode.get.inputs.find(_.id == toPortId)
     // add new edge to the graph
-    this.copy(edges = Edge(fromPort.get, toPort.get) :: edges)
+    val newGraph = this.copy(edges = Edge(fromPort.get, toPort.get) :: edges)
+    // check for cycles and prevent them
+    CycleDetection.graphHasCycle(newGraph) match {
+      case true  => println("WARNUNG: CYCLE DETECTED");this
+      case false => newGraph
+    }
+
   }
 
   /** adds a node to the graph */
@@ -141,7 +148,7 @@ case class PigQueryGraph(nodes: List[Node] = List(), edges: List[Edge] = List())
   }
 
   /** simplify the tostring for debugging */
-//  override def toString: String = s"qrygraph(${nodes.length},${edges.length})"
+  //  override def toString: String = s"qrygraph(${nodes.length},${edges.length})"
 }
 
 object PigQueryGraph {

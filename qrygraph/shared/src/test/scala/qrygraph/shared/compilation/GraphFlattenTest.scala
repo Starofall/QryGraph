@@ -132,7 +132,26 @@ class GraphFlattenTest extends FunSpec {
         val removed = GraphFlatten.removeComponentNodes(exampleGraph)
         val flattend = GraphFlatten.flattenDependency(removed)
         assert(flattend == List(load, limit, group, custom, output))
-        println(QueryCompiler.compile(exampleGraph))
+      }
+
+
+
+      it("should detect cycles #1") {
+        val graph = PigQueryGraph(List(limit,group),List(Edge(limit.outputs.head,group.inputs.head),Edge(group.outputs.head,limit.inputs.head)))
+        val flattend = GraphFlatten.flattenDependency(graph)
+        assert(flattend.length == 0)
+      }
+
+      it("should detect cycles #2") {
+        val graph = PigQueryGraph(List(load,limit,group),List(Edge(limit.outputs.head,group.inputs.head),Edge(group.outputs.head,limit.inputs.head)))
+        val flattend = GraphFlatten.flattenDependency(graph)
+        assert(flattend.length == 1)
+      }
+
+      it("should handle unconnected nodes") {
+        val graph = PigQueryGraph(List(load,limit,group))
+        val flattend = GraphFlatten.flattenDependency(graph)
+        assert(flattend.length == 3)
       }
     }
   }
