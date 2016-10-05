@@ -5,18 +5,28 @@ QryGraph is a platform for managing Pig queries and creating and modifying queri
 
 ## Install
 - Start local docker container with Hadoop
-```docker run -d --name hadoop starofall/hadoop-docker```
+```
+docker run -d --name hadoop starofall/hadoop-docker
+```
+
 - Run the QryGraph docker linked to the Hadoop container 
-```docker run -d --name qrygraph -p 9999:8080 --link hadoop:hadoop starofall/qrygraph ```
+```
+docker run -d --name qrygraph -p 9999:8080 --link hadoop:hadoop starofall/qrygraph
+```
+
 - Access it using the browser
-```http://localhost:9999```
+```
+http://localhost:9999
+```
+
 - Enter default configuration
-    ```
-    Hadoop-User: root
-    Directory: /user/root/
-    HDFS: hdfs://hadoop:9000
-    MapReduce: hadoop:19888
-    ```
+```
+Hadoop-User: root
+Directory: /user/root/
+HDFS: hdfs://hadoop:9000
+MapReduce: hadoop:19888
+```
+   
 ## Run it locally
 
 - download and install sbt from http://www.scala-sbt.org/
