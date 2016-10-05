@@ -8,9 +8,9 @@ import scala.util.Random
   * Every graph has one single output node
   * it is used by the system to evaluate the node
   */
-case class OutputNode(var id: String = Random.nextInt.toString,
-                      var name: String = "storage",
-                      var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class OutputNode(id: String = Random.nextInt.toString,
+                      name: String = "storage",
+                      position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Save"))
 

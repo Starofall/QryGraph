@@ -9,10 +9,10 @@ import scala.util.Random
   * a componentNode is a node that represents a stored component
   * it knows the componentId it represents and creates it's own input and output fields based on the component
   */
-case class ComponentNode(var id: String = Random.nextInt.toString,
-                         var name: String = NodeHelper.createNodeName(),
-                         var serverComponent: ServerComponent,
-                         var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class ComponentNode(id: String = Random.nextInt.toString,
+                         name: String = NodeHelper.createNodeName(),
+                         serverComponent: ServerComponent,
+                         position: NodePosition = NodePosition.randomPosition) extends Node {
 
   /** to simplify the routing of edges to the component to the node inside, we keep a reference to the inputs */
   var inputRef = Map[String, Input]()

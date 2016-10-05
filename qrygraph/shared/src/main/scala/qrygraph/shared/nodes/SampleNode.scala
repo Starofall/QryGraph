@@ -4,10 +4,10 @@ import qrygraph.shared.data._
 
 import scala.util.Random
 
-case class SampleNode(var id: String = Random.nextInt.toString,
-                      var name: String = NodeHelper.createNodeName(),
-                      var sampleCount: String = "1",
-                      var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class SampleNode(id: String = Random.nextInt.toString,
+                      name: String = NodeHelper.createNodeName(),
+                      sampleCount: String = "1",
+                      position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Sample"))
   val outputs = List(Output(this, id + "-2", name))

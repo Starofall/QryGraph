@@ -4,9 +4,9 @@ import qrygraph.shared.data.{NodePosition, _}
 
 import scala.util.Random
 
-case class DistinctNode(var id: String = Random.nextInt.toString,
-                        var name: String = NodeHelper.createNodeName(),
-                        var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class DistinctNode(id: String = Random.nextInt.toString,
+                        name: String = NodeHelper.createNodeName(),
+                        position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Distinct"))
   val outputs = List(Output(this, id + "-2", name))

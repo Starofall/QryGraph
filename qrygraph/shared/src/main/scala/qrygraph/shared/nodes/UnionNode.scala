@@ -5,9 +5,9 @@ import qrygraph.shared.data._
 import scala.util.Random
 
 
-case class UnionNode(var id: String = Random.nextInt.toString,
-                     var name: String = NodeHelper.createNodeName(),
-                     var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class UnionNode(id: String = Random.nextInt.toString,
+                     name: String = NodeHelper.createNodeName(),
+                     position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(
     Input(this, id + "-1", "Union1"),

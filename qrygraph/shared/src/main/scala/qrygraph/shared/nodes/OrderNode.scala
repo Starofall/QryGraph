@@ -7,10 +7,10 @@ import scala.util.Random
 /**
   * Created by info on 12.04.2016.
   */
-case class OrderNode(var id: String = Random.nextInt.toString,
-                     var name: String = NodeHelper.createNodeName(),
-                     var orderBy: String = "",
-                     var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class OrderNode(id: String = Random.nextInt.toString,
+                     name: String = NodeHelper.createNodeName(),
+                     orderBy: String = "",
+                     position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Order"))
   val outputs = List(Output(this, id + "-2", name))

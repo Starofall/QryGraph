@@ -4,10 +4,10 @@ import qrygraph.shared.data._
 
 import scala.util.Random
 
-case class LimitNode(var id: String = Random.nextInt.toString,
-                     var name: String = NodeHelper.createNodeName(),
-                     var limitCount: String = "",
-                     var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class LimitNode(id: String = Random.nextInt.toString,
+                     name: String = NodeHelper.createNodeName(),
+                     limitCount: String = "",
+                     position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Limit"))
   val outputs = List(Output(this, id + "-2", name))

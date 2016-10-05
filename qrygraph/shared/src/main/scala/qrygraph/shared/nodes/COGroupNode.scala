@@ -5,11 +5,11 @@ import qrygraph.shared.data._
 import scala.util.Random
 
 /** COGroup Pig Node */
-case class COGroupNode(var id: String = Random.nextInt.toString,
-                       var name: String = NodeHelper.createNodeName(),
-                       var by1: String = "",
-                       var by2: String = "",
-                       var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class COGroupNode(id: String = Random.nextInt.toString,
+                       name: String = NodeHelper.createNodeName(),
+                       by1: String = "",
+                       by2: String = "",
+                       position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(
     Input(this, id + "-1", "COGroup1"),

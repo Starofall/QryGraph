@@ -5,10 +5,10 @@ import qrygraph.shared.data._
 import scala.util.Random
 import scala.util.matching.Regex
 
-case class CustomNode(var id: String = Random.nextInt.toString,
-                      var name: String = NodeHelper.createNodeName(),
-                      var queryString: String = "",
-                      var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class CustomNode(id: String = Random.nextInt.toString,
+                      name: String = NodeHelper.createNodeName(),
+                      queryString: String = "",
+                      position: NodePosition = NodePosition.randomPosition) extends Node {
 
   // @todo changing the inputs when nodes are attached crushes the system
 

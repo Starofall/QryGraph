@@ -4,11 +4,11 @@ import qrygraph.shared.data.{Output, _}
 
 import scala.util.Random
 
-case class SplitNode(var id: String = Random.nextInt.toString,
-                     var name: String = NodeHelper.createNodeName(),
-                     var splitBy1: String = "",
-                     var splitBy2: String = "",
-                     var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class SplitNode(id: String = Random.nextInt.toString,
+                     name: String = NodeHelper.createNodeName(),
+                     splitBy1: String = "",
+                     splitBy2: String = "",
+                     position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Split"))
   val outputs = List(

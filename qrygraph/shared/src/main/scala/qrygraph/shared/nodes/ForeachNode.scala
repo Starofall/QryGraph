@@ -5,10 +5,10 @@ import qrygraph.shared.data._
 import scala.util.Random
 import scala.util.matching.Regex
 
-case class ForeachNode(var id: String = Random.nextInt.toString,
-                       var name: String = NodeHelper.createNodeName(),
-                       var foreachQuery: String = "",
-                       var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class ForeachNode(id: String = Random.nextInt.toString,
+                       name: String = NodeHelper.createNodeName(),
+                       foreachQuery: String = "",
+                       position: NodePosition = NodePosition.randomPosition) extends Node {
 
 
   val pattern = new Regex("<\\d>")

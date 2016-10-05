@@ -7,11 +7,11 @@ import scala.util.Random
 /** A node in the graph */
 trait Node {
   /** a unique node id */
-  var id: String
+  val id: String
   /** the name of the node in the qrygraph */
-  var name: String
+  val name: String
   /** the visual position of the node */
-  var position: NodePosition
+  val position: NodePosition
   /** the inputs of the node */
   val inputs: List[Input]
   /** the outputs of the node */
@@ -34,9 +34,9 @@ object Edge{
 }
 
 /** an Input of a node */
-case class Input(var parent: Node, var id: String, var label: String)
+case class Input(parent: Node, id: String, label: String)
 /** a Output of a node */
-case class Output(var parent: Node, var id: String, var label: String)
+case class Output(parent: Node, id: String, label: String)
 
 /** represents the size and position of a node */
 case class NodePosition(x: Int, y: Int, width: Int, height: Int)
@@ -45,7 +45,7 @@ case class NodePosition(x: Int, y: Int, width: Int, height: Int)
 object NodePosition {
   def ZERO = NodePosition(0, 0, 200, 100)
 
-  def randomPosition = NodePosition(Random.nextInt(500), Random.nextInt(500), 200, 100)
+  def randomPosition = NodePosition(200+Random.nextInt(500), 100+Random.nextInt(500), 200, 100)
 }
 
 /** a dataSource is a xml-described csv file that can be analyzed in the tool */

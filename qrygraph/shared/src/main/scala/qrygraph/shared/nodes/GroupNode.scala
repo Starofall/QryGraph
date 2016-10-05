@@ -7,10 +7,10 @@ import scala.util.Random
 /**
   * Created by info on 12.04.2016.
   */
-case class GroupNode(var id: String = Random.nextInt.toString,
-                     var name: String = NodeHelper.createNodeName(),
-                     var groupBy: String = "",
-                     var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class GroupNode(id: String = Random.nextInt.toString,
+                     name: String = NodeHelper.createNodeName(),
+                     groupBy: String = "",
+                     position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(Input(this, id + "-1", "Group"))
   val outputs = List(Output(this, id + "-2", name))

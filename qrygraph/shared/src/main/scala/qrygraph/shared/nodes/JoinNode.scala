@@ -7,11 +7,11 @@ import scala.util.Random
 /**
   * Created by info on 12.04.2016.
   */
-case class JoinNode(var id: String = Random.nextInt.toString,
-                    var name: String = NodeHelper.createNodeName(),
-                    var by1: String = "",
-                    var by2: String = "",
-                    var position: NodePosition = NodePosition.randomPosition) extends Node {
+case class JoinNode(id: String = Random.nextInt.toString,
+                    name: String = NodeHelper.createNodeName(),
+                    by1: String = "",
+                    by2: String = "",
+                    position: NodePosition = NodePosition.randomPosition) extends Node {
 
   val inputs = List(
     Input(this, id + "-1", "Join1"),
