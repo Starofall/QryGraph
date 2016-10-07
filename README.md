@@ -18,6 +18,7 @@ docker run -d --name qrygraph -p 9999:8080 --link hadoop:hadoop starofall/qrygra
 ```
 http://localhost:9999
 ```
+(In OSX, instead of localhost, use the IP assigned by docker, default: 192.168.99.100)
 
 - Enter default configuration
 ```
