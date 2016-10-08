@@ -39,7 +39,13 @@ class PigExecutorActor(val app: play.api.Application) extends Actor with Databas
     runQuery(Tables.PigQueries.filter(_.authorizationStatus === DBEnums.AuthApproved)).mapAll {
       case Success(list)  =>
         list.foreach(row => {
-          quartzActor ! AddCronSchedule(self, "*/30 * * * * ?", ExecutionScheduledTask(row.id), reply = true)
+          val fixedCron =
+            if (row.cronjob.split(" ").length == 5) {
+              "0 " + row.cronjob.dropRight(2) + " ?"
+            } else {
+              "0 " + row.cronjob
+            }
+          quartzActor ! AddCronSchedule(self, fixedCron, ExecutionScheduledTask(row.id), reply = true)
         })
       case Failure(error) =>
         Logger.error("Failed loading queries while syncing: " + error)
@@ -54,7 +60,7 @@ class PigExecutorActor(val app: play.api.Application) extends Actor with Databas
       import dbConfig.driver.api._
       val executionId = newUUID()
       runInsert(Tables.QueryExecutions += QueryExecution(executionId, DBEnums.ExecFailed, queryId, None, None))
-//      Logger.error("I WOULD EXECUTE:" + queryId)
+      Logger.error("I WOULD EXECUTE:" + queryId)
   }
 }
 
