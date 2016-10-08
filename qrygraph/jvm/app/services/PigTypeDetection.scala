@@ -3,6 +3,7 @@ package services
 import models.Tables.GlobalSetting
 import org.apache.pig.impl.logicalLayer.FrontendException
 import org.apache.pig.impl.logicalLayer.schema.Schema
+import org.apache.pig.impl.plan.PlanValidationException
 import org.apache.pig.{ExecType, PigServer}
 import play.api.Logger
 import qrygraph.shared.compilation.QueryCompiler
@@ -49,10 +50,18 @@ object PigTypeDetection {
       }
 
     pigServer.getAliasKeySet.toList.foreach(alias => {
-//      SystemOutHelper.disableSystemOut()
-      val schema = pigServer.dumpSchema(alias)
-      typesMap += alias -> schemaToScalaSchema(schema)
-//      SystemOutHelper.enableSystemOut()
+      try {
+        val schema = pigServer.dumpSchema(alias)
+        typesMap += alias -> schemaToScalaSchema(schema)
+      } catch {
+        case f: PlanValidationException =>
+          Logger.info(s"Error on node ${alias} with msg: ${f.getCause.getMessage}")
+          errorsMap += alias -> f.getCause.getMessage
+        case e: Throwable               =>
+          errorsMap += alias -> e.getCause.getMessage
+        //            e.printStackTrace()
+      }
+
     })
 
     // shutdown pigServer
