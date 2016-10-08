@@ -3,6 +3,9 @@
 
 QryGraph is a platform for managing Pig queries and creating and modifying queries in a graphical user interface.
 
+## Quick Demo
+[Video on Youtube](https://www.youtube.com/watch?v=r7HW10YdZic)
+
 ## Install
 - Start local docker container with Hadoop
 ```
