@@ -18,7 +18,7 @@ import scala.collection.JavaConversions._
 object PigTypeDetection {
 
   /** this function returns the types of all aliases in the query */
-  def evaluateTypes(settings: GlobalSetting, dataSources: List[DataSource], graph: PigQueryGraph): (Map[String, ResultType], Map[String, String]) = {
+  def evaluateTypes(settings: GlobalSetting,graph: PigQueryGraph): (Map[String, ResultType], Map[String, String]) = {
     Logger.info("Starting type evaluation")
 
     // On deployment, set the correct home dir

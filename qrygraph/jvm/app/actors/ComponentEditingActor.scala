@@ -26,7 +26,7 @@ class ComponentEditingActor(componentId: String, val app: Application) extends A
 
     case CDeployDraftRequest() =>
       // we copy the draft into the deployed field and set undeployedChanges to false
-      graphStore = graphStore.copy(serializedQuerie = graphStore.serializedQuerie)
+      graphStore = graphStore.copy(serializedQuerie = graphStore.serializedQuerie, published = true)
       storeComponent(graphStore)
     // notify user?
 
@@ -38,17 +38,17 @@ class ComponentEditingActor(componentId: String, val app: Application) extends A
       // update every other user about the change
       broadCast(SPigQueryQraphUpdate(graph), Some(sender()))
       // now check the graph
-      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,loadDataSources(), parsedComponentGraph)
+      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting, parsedComponentGraph)
       broadCast(SQueryTypes(types, errors))
 
     // Client Requested a Graph
     case CGraphDraftRequest() =>
       val currentSender = sender()
       // send the DataSources to the client using the configuration file
-      sender ! SQueryMetaData(loadDataSources(), loadComponents())
+      sender ! SQueryMetaData(loadDataSources(), loadPublishedComponents())
       // send the DataSources to the client (using debug if not available atm)
       sender ! SPigQueryQraphUpdate(parsedComponentGraph)
-    case x => Logger.warn("Unknown packet in ServerActor - content:" + x.toString)
+    case x                    => Logger.warn("Unknown packet in ServerActor - content:" + x.toString)
   }
 }
 

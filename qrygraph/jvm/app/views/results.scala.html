@@ -1,0 +1,10 @@
+@import play.twirl.api.Html
+
+@(usersRow: Tables.User, result: List[String])
+
+
+@header("Result", usersRow) {
+    <div class="container">
+    @result.map(x => Html(s"<p>$x</p>"))
+    </div>
+}

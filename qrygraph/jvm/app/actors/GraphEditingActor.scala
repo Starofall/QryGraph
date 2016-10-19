@@ -34,7 +34,7 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
       )
       storeGraph(graphStore)
       broadCast(SPigQueryQraphUpdate(parsedQrygraphDraft))
-      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,loadDataSources(), parsedQrygraphDraft)
+      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
       broadCast(SQueryTypes(types, errors))
 
     case CDeployDraftRequest() =>
@@ -49,7 +49,7 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
     case CQueryExamplesRequest() =>
       val currentSender = sender()
       Future {
-        PigExampleGenerator.generateExamples(globalSetting, loadDataSources(), parsedQrygraphDraft).map({
+        PigExampleGenerator.generateExamples(globalSetting, parsedQrygraphDraft).map({
           currentSender ! SQueryExamples(_)
         })
       }
@@ -65,21 +65,21 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
       // update every other user about the change
       broadCast(SPigQueryQraphUpdate(graph), Some(sender()))
       // now check the graph
-      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,loadDataSources(), parsedQrygraphDraft)
+      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
       broadCast(SQueryTypes(types, errors))
 
     // Client Requested a Graph
     case CGraphDraftRequest() =>
       val currentSender = sender()
       // send the DataSources to the client using the configuration file
-      currentSender ! SQueryMetaData(loadDataSources(), loadComponents())
+      currentSender ! SQueryMetaData(loadDataSources(), loadPublishedComponents())
       // send the DataSources to the client (using debug if not available atm)
       Future {
         currentSender ! SPigQueryQraphUpdate(parsedQrygraphDraft)
       }
       // evaluate the type system and send the update to the client
       Future {
-        val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,loadDataSources(), parsedQrygraphDraft)
+        val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
         currentSender ! SQueryTypes(types, errors)
       }
       // send results to client

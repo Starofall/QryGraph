@@ -50,13 +50,11 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
             GlobalSettings += newGlobalSettings,
             Users += User("1", setupForm.email, BCrypt.hashpw(setupForm.password, BCrypt.gensalt()), setupForm.firstName, setupForm.lastName, DBEnums.RoleAdmin, None),
 
-            DataSources.insertOrUpdate(DataSource("1","Example","A example database containing 'Most Popular Baby Names by Sex and Mother's Ethnic Group, New York City' from data.gov", setupForm.qrygraphFolder + "/qrygraph-example.csv")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1a",0,"1","YEAR","chararray")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1b",1,"1","GENDER","chararray")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1c",2,"1","ETHNIC","chararray")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1d",3,"1","NAME","chararray")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1e",4,"1","COUNT","int")),
-            DataSourcesColumns.insertOrUpdate(DataSourcesColumn("1f",5,"1","RANK","int"))
+            DataSources.insertOrUpdate(DataSource("1","Example"
+              ,"A example database containing 'Most Popular Baby Names by Sex and Mother's Ethnic Group, New York City' from data.gov"
+              , s"LOAD '${setupForm.qrygraphFolder}/qrygraph-example.csv' USING PigStorage(',') AS " +
+                s"(YEAR:chararray,GENDER:chararray,ETHNIC:chararray,NAME:chararray,COUNT:int,RANK:int)"
+            ))
           )
         ).mapAll(_ => {
           // upload the example file to hdfs

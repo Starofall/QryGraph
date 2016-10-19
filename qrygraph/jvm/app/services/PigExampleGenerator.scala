@@ -18,7 +18,7 @@ import scala.concurrent.{Future, Promise}
 /** The PigExecution object handle the execution of a qrygraph on the Hadoop cluster */
 object PigExampleGenerator {
 
-  def generateExamples(settings: GlobalSetting, dataSources: List[DataSource], qrygraph: PigQueryGraph): Future[Map[String, List[List[String]]]] = {
+  def generateExamples(settings: GlobalSetting, qrygraph: PigQueryGraph): Future[Map[String, List[List[String]]]] = {
     Logger.info(s"Using setting for execution of Query: $settings")
 
     val promise = Promise[Map[String, List[List[String]]]]()
@@ -42,26 +42,6 @@ object PigExampleGenerator {
             val resultFormat = x.map(_.toList.map(_.toString))
             map += node.name -> resultFormat
 
-
-//            Option(pigServer.getExamples(node.name)) match {
-//              case Some(x) =>
-//                println("DEBUG:")
-//                x.foreach{ x =>
-//                  val (a,b) = x
-//                  a match {
-//                    case expression: LogicalRelationalOperator =>
-//                      println(expression.getAlias)
-//                      if(b != null){
-//                        println(b.size())
-//                      }
-//                    case _                             =>
-//                  }
-//                }
-//                val resultLines = x.values.filter(_ != null).toList.map(_.iterator().toList)
-//                val resultFormat = resultLines.map(_.map(_.toString))
-//                map += node.name -> resultFormat
-//              case None => println("EXAMPLES IS NULL!!!")
-//            }
           } catch {
             case f: FrontendException =>
               println(f.getMessage)

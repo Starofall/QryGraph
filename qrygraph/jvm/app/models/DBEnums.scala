@@ -9,6 +9,7 @@ object DBEnums {
 
 
   val RoleAdmin = "admin"
+  val RoleUser = "user"
 
   val AuthApproved = "approved"
   val AuthPending = "pending"

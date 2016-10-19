@@ -1,0 +1,38 @@
+@import models.Tables.User
+@import b3.vertical.fieldConstructor // Declares a vertical field constructor as default
+
+
+@import controllers.forms.DataSourceForm
+@import controllers.forms.DBUserForm
+@(usersRow: User, userId: String, userForm: Form[DBUserForm])(implicit messages: Messages)
+
+@header("Create Query", usersRow) {
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Update User</h1>
+                <p class="lead">Update the setting of a user</p>
+            </div>
+        </div>
+        <div class="row">
+        @b3.form(routes.Settings.userEditPOST(userId)) {
+            @b3.email(userForm("email"), '_label -> "Email", 'placeholder -> "example@mail.com")
+            @b3.password(userForm("password"), '_label -> "Password", 'placeholder -> "Password")
+            @b3.text(userForm("firstName"), '_label -> "First Name", 'placeholder -> "John")
+            @b3.text(userForm("lastName"), '_label -> "Second Name", 'placeholder -> "Doe")
+            @b3.select(userForm("userRole"), options = Seq(DBEnums.RoleAdmin -> "Administrator", DBEnums.RoleUser -> "User"), '_label -> "Access rights")
+
+            @if(userForm.hasGlobalErrors) {
+                @for(error <- userForm.globalErrors) {
+                    <div class="alert alert-danger">
+                    @Messages(error.messages, error.args)
+                    </div>
+                }
+            }
+
+            @b3.submit('class -> "btn btn-default") { Edit }
+        }
+        </div>
+    </div>
+}

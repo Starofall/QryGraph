@@ -16,9 +16,15 @@
     <logger name="play" level="INFO" />
     <logger name="application" level="DEBUG" />
     <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+    <logger name="actors" level="DEBUG" />
+    <logger name="akka.event.slf4j.Slf4jLogger" level="DEBUG" />
+
+
 
     <logger name="org.apache.pig.data.SchemaTupleBackend" level="OFF" />
-
+    <logger name="org.apache.hadoop.mapreduce.JobResourceUploader" level="ERROR" />
+    <logger name="org.apache.hadoop.mapred.LocalDistributedCacheManager" level="ERROR" />
+    <logger name="org.apache.hadoop.fs.FileUtil" level="ERROR" />
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />

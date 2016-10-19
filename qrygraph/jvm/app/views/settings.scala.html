@@ -2,33 +2,104 @@
 @import views.Navigation
 @import models.Tables.User
 @import controllers.forms.SettingsForm
-@(usersRow: User, settingsForm: Form[SettingsForm])(implicit messages: Messages)
+@import models.Tables.DataSource
+@import qrygraph.shared.data.QueryLoadSource
 
-@header("Settings", usersRow, Some(Navigation.Settings)) {
-    <div class="container">
-        <div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1>Settings</h1>
-                    <p class="lead">Here you can configure the configuration of QryGraph</p>
+@import helper._
+@(usersRow: User, settingsForm: Form[SettingsForm], dataSources: List[QueryLoadSource],usersList:List[User])(implicit messages: Messages)
+
+    @dataSourceBox(dataSource: QueryLoadSource) = {
+        <div class="panel panel-default queryPanel">
+            <div class="panel-heading">
+                @dataSource.name
+                <div class="pull-right">
+                    <a href="@routes.Settings.sourcesEditGET(dataSource.id)" class="btn btn-xs btn-warning">Edit</a>
+                    @form(routes.Settings.sourcesDELETE(dataSource.id), 'class -> "inline") {
+                        <input class="btn btn-xs btn-danger" type="submit" value="Delete">
+                        }
                 </div>
             </div>
-            @b3.form(routes.Settings.indexPOST()) {
-                <h3>Configure Hadoop Connection</h3>
-                @b3.text(settingsForm("hadoopUser"), '_label -> "Hadoop login user", 'placeholder -> "root")
-                @b3.text(settingsForm("qrygraphFolder"), '_label -> "Main folder for QryGraph", 'placeholder -> "/user/root")
-                @b3.text(settingsForm("fsDefaultName"), '_label -> "HDFS URL", 'placeholder -> "hdfs://<namenode-hostname>:<port>")
-                @b3.text(settingsForm("mapredJobTracker"), '_label -> "MapReduce URL", 'placeholder -> "<jobtracker-hostname>:<port>")
-
-                @if(settingsForm.hasGlobalErrors) {
-                    @for(error <- settingsForm.globalErrors) {
-                        <div class="alert alert-danger">
-                        @Messages(error.messages, error.args)
-                        </div>
-                    }
-                }
-                @b3.submit('class -> "btn btn-default") { Apply }
-            }
+            <div class="panel-body">
+                <div class="col-xs-4">
+                @dataSource.description
+                </div>
+                <div class="col-xs-6">
+                @dataSource.loadCommand
+                </div>
+            </div>
         </div>
-    </div>
-}
+    }
+
+
+    @userBox(user: User) = {
+        <div class="panel panel-default queryPanel">
+            <div class="panel-heading">
+                @user.firstName @user.lastName (@user.email) - @user.userRole
+                <div class="pull-right">
+                    <a href="@routes.Settings.userEditGET(user.id)" class="btn btn-xs btn-warning">Edit</a>
+                    @form(routes.Settings.userDELETE(user.id), 'class -> "inline") {
+                        <input class="btn btn-xs btn-danger" type="submit" value="Delete">
+                        }
+                </div>
+            </div>
+        </div>
+    }
+
+
+    @header("Settings", usersRow, Some(Navigation.Settings)) {
+        <div class="container">
+            <div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Settings</h1>
+                        <p class="lead">Here you can configure the configuration of QryGraph</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h3>Users</h3>
+                            <p class="lead small">Define users that have access to the tool
+                                <a href="@routes.Settings.userCreateGET" class="pull-right btn btn-sm btn-default">Add User</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                    @usersList.map(userBox)
+                    </div>
+                </div>
+                <hr>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h3>Data Sources</h3>
+                            <p class="lead small">Databases that are available for the user to user. Contains Pig LOAD command to a storage provider.
+                                <a href="@routes.Settings.sourcesCreateGET" class="pull-right btn btn-sm btn-default">Add Data Source</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                    @dataSources.map(dataSourceBox)
+                    </div>
+                </div>
+                <hr>
+                @b3.form(routes.Settings.indexPOST()) {
+                    <h3>Hadoop Connection</h3>
+                    <p class="lead small">Define the connection parameter for Hadoop</p>
+                    @b3.text(settingsForm("hadoopUser"), '_label -> "Hadoop login user", 'placeholder -> "root")
+                    @b3.text(settingsForm("qrygraphFolder"), '_label -> "Main folder for QryGraph", 'placeholder -> "/user/root")
+                    @b3.text(settingsForm("fsDefaultName"), '_label -> "HDFS URL", 'placeholder -> "hdfs://<namenode-hostname>:<port>")
+                    @b3.text(settingsForm("mapredJobTracker"), '_label -> "MapReduce URL", 'placeholder -> "<jobtracker-hostname>:<port>")
+
+                    @if(settingsForm.hasGlobalErrors) {
+                        @for(error <- settingsForm.globalErrors) {
+                            <div class="alert alert-danger">
+                            @Messages(error.messages, error.args)
+                            </div>
+                        }
+                    }
+                    @b3.submit('class -> "btn btn-default") { Apply }
+                }
+            </div>
+        </div>
+    }

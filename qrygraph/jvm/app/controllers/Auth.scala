@@ -34,7 +34,7 @@ class Auth @Inject()(implicit val app: play.api.Application, val messagesApi: Me
         tryLogin(loginRequest.email, loginRequest.password).mapAll {
           case Success(Some(result)) =>
             Logger.info(s"Correct login for email: " + result._1.email)
-            Redirect(routes.Dashboard.index()).withCookies(Cookie("qgtoken", result._2.token))
+            Redirect(routes.Queries.index()).withCookies(Cookie("qgtoken", result._2.token))
 
           case Success(None) =>
             Logger.info(s"Login wrong for email: " + loginRequest.email)

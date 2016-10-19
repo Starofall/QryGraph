@@ -1,9 +1,10 @@
 package models
 
+import models.Tables.User
 import play.api.Logger
 import prickle.Unpickle
 import qrygraph.shared.SharedMessages
-import qrygraph.shared.data.{Column, DataSource, PigQueryGraph, ServerComponent}
+import qrygraph.shared.data._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -17,31 +18,32 @@ trait MetaDataAccess {
 
   /* DATABASE */
 
-  import dbConfig.driver.api._
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   import util.FutureEnhancements._
 
-  def loadDataSources(): List[DataSource] = {
+  /** we transform the backend stored source into a QueryLoadSource so that the client can use it  */
+  def loadDataSources(): List[QueryLoadSource] = {
     Await.result(runQuery(Tables.DataSources).mapAll {
-      case Success(x) =>
-        x.map(s => {
-          val columns = Await.result(
-            runQuery(Tables.DataSourcesColumns.filter(_.dataSourcesId === s.id)), 5.seconds)
-              .sortBy(_.ordering).map(x => Column(x.name, x.`type`)).toList
-          DataSource(s.id, s.name, s.description, s.hdfspath, columns)
-        }).toList
-      case Failure(e) =>
-        Logger.error("Failed loading dataSources: " + e.getMessage)
-        List()
+      case Success(x) => x.map(s => QueryLoadSource(s.id, s.name, s.description, s.loadcommand)).toList
+      case Failure(e) => Logger.error("Failed loading dataSources: " + e.getMessage); List()
     }, 20.seconds)
   }
 
-  def loadComponents(): List[ServerComponent] = {
+  /** we transform the backend stored source into a QueryLoadSource so that the client can use it  */
+  def loadUsers(): List[User] = {
+    Await.result(runQuery(Tables.Users).mapAll {
+      case Success(x) => x.toList
+      case Failure(e) => Logger.error("Failed loading dataSources: " + e.getMessage); List()
+    }, 20.seconds)
+  }
+
+  def loadPublishedComponents(): List[ServerComponent] = {
+    import dbConfig.driver.api._
     implicit val nodePickler = SharedMessages.nodePickler
-    Await.result(runQuery(Tables.PigComponents).mapAll {
+    Await.result(runQuery(Tables.PigComponents.filter(_.published === true)).mapAll {
       case Success(x) => x.map(i => {
-          ServerComponent(i.id,i.name,i.description,Unpickle[PigQueryGraph].fromString(i.serializedQuerie.getOrElse("")).getOrElse(PigQueryGraph()))
-        }).toList
+        ServerComponent(i.id, i.name, i.description, Unpickle[PigQueryGraph].fromString(i.serializedQuerie.getOrElse("")).getOrElse(PigQueryGraph()))
+      }).toList
       case Failure(e) => Logger.error("Failed loading components: " + e.getMessage); List()
     }, 20.seconds)
   }

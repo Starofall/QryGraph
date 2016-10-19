@@ -84,7 +84,7 @@ class Components @Inject()(implicit val app: play.api.Application, val messagesA
   }
 
   def editor(id: String) = (AuthedAction(app) andThen ReadComponentFromId(app, id)) { request =>
-    Ok(views.html.editor(request.user, request.cookies, id,true, loadDataSources(), loadComponents()))
+    Ok(views.html.editor(request.user, request.cookies, id,true, loadDataSources(), loadPublishedComponents()))
   }
 
 }

@@ -44,7 +44,7 @@ class ClientState {
   var queryContext = QueryContext()
 
   /** saves the dataSources */
-  def updateQueryContext(newDataSources: List[DataSource], newComponents: List[ServerComponent]): Unit = {
+  def updateQueryContext(newDataSources: List[QueryLoadSource], newComponents: List[ServerComponent]): Unit = {
     queryContext = QueryContext(newDataSources, newComponents)
     // @todo here we have to update the UI to show all data sources in the menu
   }

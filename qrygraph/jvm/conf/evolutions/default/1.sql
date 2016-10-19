@@ -5,16 +5,7 @@ CREATE TABLE IF NOT EXISTS data_sources (
   id          VARCHAR(36)  NOT NULL,
   name        VARCHAR(255) NOT NULL,
   description VARCHAR(255) NOT NULL,
-  hdfsPath    VARCHAR(255) NOT NULL,
-  PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS data_sources_columns (
-  id              VARCHAR(36)  NOT NULL,
-  ordering        INT          NOT NULL,
-  data_sources_id VARCHAR(36)  NOT NULL,
-  name            VARCHAR(255) NOT NULL,
-  type            VARCHAR(255) NOT NULL,
+  loadCommand    VARCHAR(1024) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -84,18 +75,6 @@ CREATE TABLE IF NOT EXISTS query_access_rights (
   right_level VARCHAR(45) NULL,
   user_id     VARCHAR(36) NOT NULL,
   query_id    VARCHAR(36) NOT NULL,
-  PRIMARY KEY (id)
-);
-
--- -----------------------------------------------------
--- Table query_executions
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS query_executions (
-  id             VARCHAR(36) NOT NULL,
-  result_status  VARCHAR(45) NOT NULL,
-  queries_id     VARCHAR(36) NOT NULL,
-  result_log     VARCHAR     NULL,
-  execution_time TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
 

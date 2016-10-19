@@ -1,12 +1,14 @@
 package util
 
 import controllers.routes
-import models.{DatabaseAccess, LoginAccess}
+import models.Tables._
+import models.{DBEnums, DatabaseAccess, LoginAccess}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.{ActionTransformer, _}
 import play.api.{Application, Logger}
-import models.Tables._
+
 import scala.concurrent.Future
+import scala.language.implicitConversions
 import scala.util.{Failure, Success}
 
 /**
@@ -20,10 +22,14 @@ object Actions {
   }
 
   /** a private action only available to logged in users */
-  def AuthedAction(app: Application) = {
+  def AuthedAction(implicit app: Application) = {
     CheckSetupDone(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction
   }
 
+  /** a private action only available to logged in users */
+  def AdminAction(implicit app: Application) = {
+    CheckSetupDone(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction andThen AdminOnlyAction
+  }
 
   /** Reads a query from the database and appends it */
   case class ReadQueryFromId(app: Application, queryId: String) extends ActionRefiner[UserRequest, QueryRequest] with DatabaseAccess {
@@ -48,6 +54,36 @@ object Actions {
       }
     }
   }
+  /** Reads a query from the database and appends it */
+  case class ReadDBUserFromId(app: Application, userId: String) extends ActionRefiner[UserRequest, DBUserRequest] with DatabaseAccess {
+
+    def refine[A](request: UserRequest[A]): Future[Either[Result, DBUserRequest[A]]] = {
+      import dbConfig.driver.api._
+      import models.Tables._
+      import util.FutureEnhancements._
+
+      runQuerySingle(Users.filter(_.id === userId)).mapAll {
+        case Success(Some(dbUser)) if request.user.userRole == DBEnums.RoleAdmin => Right(DBUserRequest(dbUser, request))
+        case Success(Some(dbUser))                                               => Left(Results.Unauthorized("No access to this query for the logged in user"))
+        case Success(None)                                                       => Left(Results.NotFound("Could not find query in database"))
+        case Failure(e)                                                          => Left(Results.InternalServerError("Could not load query"))
+      }
+    }
+  }
+  /** Reads a query from the database and appends it */
+  case class ReadLoadSourceFromId(app: Application, loadSourceId: String) extends ActionRefiner[UserRequest, DataSourceRequest] with DatabaseAccess {
+    def refine[A](request: UserRequest[A]): Future[Either[Result, DataSourceRequest[A]]] = {
+      import dbConfig.driver.api._
+      import util.FutureEnhancements._
+
+      runQuerySingle(Tables.DataSources.filter(_.id === loadSourceId)).mapAll {
+        case Success(Some(loadSource)) if request.user.userRole == DBEnums.RoleAdmin => Right(DataSourceRequest(loadSource, request))
+        case Success(Some(loadSource))                                               => Left(Results.Unauthorized("No access to this query for the logged in user"))
+        case Success(None)                                                           => Left(Results.NotFound("Could not find query in database"))
+        case Failure(e)                                                              => Left(Results.InternalServerError("Could not load query"))
+      }
+    }
+  }
 
   /** Reads a query from the database and appends it */
   case class ReadComponentFromId(app: Application, queryId: String) extends ActionRefiner[UserRequest, ComponentRequest] with DatabaseAccess {
@@ -68,13 +104,16 @@ object Actions {
       }
     }
   }
-
-
   /** a request that can hold a user but might be called anonymously */
   case class UserOptionalRequest[A](user: Option[User], request: Request[A]) extends WrappedRequest[A](request)
   /** a request called in a privat area where there must be a user present */
   case class UserRequest[A](user: User, request: Request[A]) extends WrappedRequest[A](request)
-
+  case class DataSourceRequest[A](dataSource: DataSource, request: UserRequest[A]) extends WrappedRequest[A](request) {
+    def user = request.user
+  }
+  case class DBUserRequest[A](dbUser: User, request: UserRequest[A]) extends WrappedRequest[A](request) {
+    def user = request.user
+  }
   case class QueryRequest[A](pigQueriesRow: PigQuery, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
@@ -101,6 +140,17 @@ object Actions {
       } else {
         Right(UserRequest(request.user.get, request))
       })
+    }
+  }
+
+  /** logs the user/request informations to the console */
+  object AdminOnlyAction extends ActionFilter[UserRequest] {
+    protected def filter[B](request: UserRequest[B]): Future[Option[Result]] = {
+      request.user.userRole match {
+        case DBEnums.RoleAdmin => Future(None)
+        case DBEnums.RoleUser  => Future(Some(Results.Redirect(routes.Auth.loginGET())))
+        case _                 => Future(Some(Results.Redirect(routes.Auth.loginGET())))
+      }
     }
   }
 

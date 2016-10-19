@@ -3,58 +3,68 @@
 # ~~~~
 
 # Home page
-GET         /                             @controllers.Dashboard.index
+GET         /                                   @controllers.Queries.index
 
 # Auth
-GET         /login                        @controllers.Auth.loginGET
-POST        /login                        @controllers.Auth.loginPOST
-GET         /logout                       @controllers.Auth.logoutGET
+GET         /login                              @controllers.Auth.loginGET
+POST        /login                              @controllers.Auth.loginPOST
+GET         /logout                             @controllers.Auth.logoutGET
 
-GET         /register                     @controllers.Auth.register
-
-# Dashboard
-GET         /dashboard                    @controllers.Dashboard.index
+GET         /register                           @controllers.Auth.register
 
 # Queries
-GET         /queries                      @controllers.Queries.index
+GET         /queries                            @controllers.Queries.index
 
 # Queries
-GET         /upload                       @controllers.Upload.uploadGET
-POST        /upload                       @controllers.Upload.uploadPOST
+GET         /upload                             @controllers.Upload.uploadGET
+POST        /upload                             @controllers.Upload.uploadPOST
 
 
 # Single Query CRUD
-GET         /query/create                 @controllers.Queries.createGET
-POST        /query/create                 @controllers.Queries.createPOST
-GET         /query/edit/:id               @controllers.Queries.editGET(id:String)
-POST        /query/edit/:id               @controllers.Queries.editPOST(id:String)
-POST        /query/delete/:id             @controllers.Queries.deleteQuery(id:String)
+GET         /query/create                       @controllers.Queries.createGET
+POST        /query/create                       @controllers.Queries.createPOST
+GET         /query/edit/:id                     @controllers.Queries.editGET(id:String)
+POST        /query/edit/:id                     @controllers.Queries.editPOST(id:String)
+POST        /query/delete/:id                   @controllers.Queries.deleteQuery(id:String)
 
 # Execution elements
-GET         /query/results/:id            @controllers.Queries.results(id:String)
-GET         /query/run/:id                @controllers.Queries.run(id:String)
-GET         /query/editor/:id             @controllers.Queries.editor(id:String)
+GET         /query/results/:id                  @controllers.Queries.results(id:String)
+GET         /query/run/:id                      @controllers.Queries.run(id:String)
+GET         /query/editor/:id                   @controllers.Queries.editor(id:String)
 
 # Components
-GET         /components                   @controllers.Components.index
-GET         /components/editor/:id        @controllers.Components.editor(id:String)
-GET         /components/create            @controllers.Components.createGET
-POST        /components/create            @controllers.Components.createPOST
-GET         /components/edit/:id          @controllers.Components.editGET(id:String)
-POST        /components/edit/:id          @controllers.Components.editPOST(id:String)
-POST        /components/delete/:id        @controllers.Components.deleteComponent(id:String)
+GET         /components                         @controllers.Components.index
+GET         /components/editor/:id              @controllers.Components.editor(id:String)
+GET         /components/create                  @controllers.Components.createGET
+POST        /components/create                  @controllers.Components.createPOST
+GET         /components/edit/:id                @controllers.Components.editGET(id:String)
+POST        /components/edit/:id                @controllers.Components.editPOST(id:String)
+POST        /components/delete/:id              @controllers.Components.deleteComponent(id:String)
 
 # Setup
-GET         /setup                        @controllers.Setup.indexGET
-POST        /setup                        @controllers.Setup.indexPOST
+GET         /setup                              @controllers.Setup.indexGET
+POST        /setup                              @controllers.Setup.indexPOST
 
 # Settings
-GET         /settings                     @controllers.Settings.indexGET
-POST        /settings                     @controllers.Settings.indexPOST
+GET         /settings                           @controllers.Settings.indexGET
+POST        /settings                           @controllers.Settings.indexPOST
+
+GET         /settings/sources/create            @controllers.Settings.sourcesCreateGET
+POST        /settings/sources/create            @controllers.Settings.sourcesCreatePOST
+GET         /settings/sources/edit/:id          @controllers.Settings.sourcesEditGET(id:String)
+POST        /settings/sources/edit/:id          @controllers.Settings.sourcesEditPOST(id:String)
+POST        /settings/sources/delete/:id        @controllers.Settings.sourcesDELETE(id:String)
+
+GET         /settings/user/create               @controllers.Settings.userCreateGET
+POST        /settings/user/create               @controllers.Settings.userCreatePOST
+GET         /settings/user/edit/:id             @controllers.Settings.userEditGET(id:String)
+POST        /settings/user/edit/:id             @controllers.Settings.userEditPOST(id:String)
+POST        /settings/user/delete/:id           @controllers.Settings.userDELETE(id:String)
+
 
 # WebSocketConnection
-GET         /webSocket                    @controllers.WebSocketEntry.webSocketChatEntry
+GET         /webSocket                          @controllers.WebSocketEntry.webSocketChatEntry
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                 controllers.Assets.at(path="/public", file)
+GET         /assets/*file                       controllers.Assets.at(path="/public", file)
 

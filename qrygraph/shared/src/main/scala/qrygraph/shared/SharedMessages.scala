@@ -82,7 +82,7 @@ object SharedMessages {
 
   // Push update from server
   case class SPigQueryQraphUpdate(graph: PigQueryGraph)                                         extends ServerToClient
-  case class SQueryMetaData(dataSources: List[DataSource], components: List[ServerComponent])                    extends ServerToClient
+  case class SQueryMetaData(dataSources: List[QueryLoadSource], components: List[ServerComponent])                    extends ServerToClient
     {override def toString = s"SQueryMetaData(---)"}
 
 

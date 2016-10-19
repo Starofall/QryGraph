@@ -10,29 +10,16 @@
             <div class="panel-heading">
                 <i class="fa fa-exclamation fa-fw"></i>
                 <span class="title">@query.name</span>
-                <span class="owner">by
-                    <a href="#">@{
-                        usersRow.firstName
-                    } @{
-                        usersRow.lastName
-                    }</a>
-                </span>
                 <div class="pull-right">
                     @form(routes.Queries.deleteQuery(query.id), 'class -> "inline") {
                         <input class="btn btn-xs btn-danger" type="submit" value="Delete">
                     }
                     <a href="@routes.Queries.editGET(query.id)" class="btn btn-xs btn-warning">Edit</a>
                     <a href="@routes.Queries.editor(query.id)" class="btn btn-xs btn-success">QueryEditor</a>
-                    @if(query.executionStatus == DBEnums.RunPaused) {
-                        <a href="@routes.Queries.editor(query.id)" class="btn btn-xs btn-default">Resume</a>
-                    } else {
-                        <a href="@routes.Queries.editor(query.id)" class="btn btn-xs btn-default">Pause</a>
-                    }
-                    @if(query.executionStatus != DBEnums.RunRunning) {
+                    @if(query.serializedDeployedQuerie.isDefined){
                         <a href="@routes.Queries.run(query.id)" class="btn btn-xs btn-primary">Run</a>
+                        <a href="@routes.Queries.results(query.id)" class="btn btn-xs btn-primary">Results</a>
                     }
-                    <a href="@routes.Queries.run(query.id)" class="btn btn-xs btn-primary">Results</a>
-
                 </div>
             </div>
             <div class="panel-body">

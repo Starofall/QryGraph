@@ -1,9 +1,9 @@
 @import models.Tables.User
-@import qrygraph.shared.data.DataSource
 @import models.Tables.PigComponent
 @import views.Navigation
 @import qrygraph.shared.data.ServerComponent
-@(usersRow: User, cookies: Cookies, id: String, isComponent: Boolean, dataSources: List[DataSource], componentNamesAndIds: List[ServerComponent])(implicit app: play.api.Application)
+@import qrygraph.shared.data.QueryLoadSource
+@(usersRow: User, cookies: Cookies, id: String, isComponent: Boolean, dataSources: List[QueryLoadSource], componentNamesAndIds: List[ServerComponent])(implicit app: play.api.Application)
 
 @header("Editor", usersRow, if(isComponent){
     Some(Navigation.Components)

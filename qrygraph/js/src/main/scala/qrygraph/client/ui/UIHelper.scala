@@ -22,7 +22,6 @@ object UIHelper {
       case (true, false, true) => 3 // the to node is not valid but other neighbour also not -> yellow
       case (_, false, _)       => 1 // the to node is not valid -> red
       case (_, true, _)        => 4 // ERROR CASE
-      case (_, _, _)           => 0 // ERROR CASE should not happen -> grey
     }
   }
 }

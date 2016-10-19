@@ -1,37 +1,40 @@
 package views
 
+import models.DBEnums
+import models.Tables.User
+
 /**
   * Created by info on 17.04.2016.
   */
 object Navigation {
 
   sealed trait NavButton {
-    def name: String
+    val name: String
 
     def route: String
   }
-  case object Dashboard extends NavButton {
-    def name = "Dashboard"
 
-    def route = controllers.routes.Dashboard.index.url
-  }
   case object Queries extends NavButton {
-    def name = "Queries"
+    val name = "Queries"
 
     def route = controllers.routes.Queries.index.url
   }
   case object Components extends NavButton {
-    def name = "Components"
+    val name = "Components"
 
     def route = controllers.routes.Components.index.url
   }
   case object Settings extends NavButton {
-    def name = "Settings"
+    val name = "Settings"
 
     def route = controllers.routes.Settings.indexGET.url
   }
 
-  def visibleNavButtons(): Seq[NavButton] = {
-    Seq(Dashboard, Queries, Components, Settings)
+  def visibleNavButtons(user: User): Seq[NavButton] = {
+    if (user.userRole == DBEnums.RoleAdmin) {
+      Seq(Queries, Components, Settings)
+    } else {
+      Seq(Queries, Components)
+    }
   }
 }

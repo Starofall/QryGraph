@@ -11,20 +11,24 @@ import org.apache.hadoop.security.SaslRpcServer.AuthMethod
 import org.apache.hadoop.security.UserGroupInformation
 import org.apache.hadoop.util.Progressable
 
+import scala.concurrent.{Future, Promise}
+import collection.JavaConverters._
+
 /**
   * Created by info on 03.10.2016.
   */
 object HDFS {
 
 
-  def writeFile(globalSetting: Tables.GlobalSetting,fileName: String, uploadedFile: File) = {
+  def writeFile(globalSetting: Tables.GlobalSetting, fileName: String, uploadedFile: File) = {
     val fis = new FileInputStream(uploadedFile)
-    writeStream(globalSetting,fileName,fis)
+    writeStream(globalSetting, fileName, fis)
   }
 
-  def writeStream(globalSetting: Tables.GlobalSetting,fileName: String, inputStream: InputStream) = {
-    val hdfsUrl = globalSetting.fsDefaultName //"hdfs://localhost:9001"
-    val qryGraphFolder =  globalSetting.qrygraphFolder //"/user/qrygraph/"
+  def writeStream(globalSetting: Tables.GlobalSetting, fileName: String, inputStream: InputStream) = {
+    val hdfsUrl = globalSetting.fsDefaultName
+    //"hdfs://localhost:9001"
+    val qryGraphFolder = globalSetting.qrygraphFolder //"/user/qrygraph/"
 
     UserGroupInformation.createRemoteUser(globalSetting.hadoopUser, AuthMethod.SIMPLE).doAs(new PrivilegedAction[Unit] {
       override def run(): Unit = {
@@ -38,7 +42,7 @@ object HDFS {
           hdfs.mkdirs(qryfolder)
         }
 
-        val file = new Path(hdfsUrl + "/"  + qryGraphFolder + "/" + fileName)
+        val file = new Path(hdfsUrl + "/" + qryGraphFolder + "/" + fileName)
         if (hdfs.exists(file)) {
           hdfs.delete(file, true)
         }
@@ -69,5 +73,33 @@ object HDFS {
         hdfs.close()
       }
     })
+  }
+
+
+  def readResults(globalSetting: Tables.GlobalSetting, queryId: String): Future[List[String]] = {
+    val hdfsUrl = globalSetting.fsDefaultName
+    //"hdfs://localhost:9001"
+    val qryGraphFolder = globalSetting.qrygraphFolder //"/user/qrygraph/"
+
+    val promise = Promise[List[String]]()
+
+    UserGroupInformation.createRemoteUser(globalSetting.hadoopUser, AuthMethod.SIMPLE).doAs(new PrivilegedAction[Unit] {
+      override def run(): Unit = {
+        val configuration = new Configuration()
+        configuration.set("dfs.client.use.datanode.hostname", "true")
+        val hdfs = FileSystem.get(new URI(hdfsUrl), configuration)
+
+        val file = new Path(hdfsUrl + "/" + qryGraphFolder + "/results/" + queryId + "/part-r-00000")
+        if (!hdfs.exists(file)) {
+          promise.success(List("NO DATA AVAILABLE YET - PLEASE DEPLOY & EXECUTE"))
+        } else {
+          // results available -> read them
+          val br = new BufferedReader(new InputStreamReader(hdfs.open(file)))
+          promise.success(br.lines().iterator().asScala.toList)
+        }
+        hdfs.close()
+      }
+    })
+    promise.future
   }
 }

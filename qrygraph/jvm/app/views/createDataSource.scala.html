@@ -1,0 +1,45 @@
+@import models.Tables.User
+@import b3.vertical.fieldConstructor // Declares a vertical field constructor as default
+
+@import models.Tables.PigQuery
+@import controllers.forms.PigQueryForm
+@import controllers.forms.DataSourceForm
+@(usersRow: User, dataSourceForm: Form[DataSourceForm])(implicit messages: Messages)
+
+@header("Create Query", usersRow) {
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Create Data Source</h1>
+                <p class="lead">Here you can add new data sources to the system</p>
+            </div>
+        </div>
+        <div class="row">
+            @b3.form(routes.Settings.sourcesCreatePOST()) {
+                @b3.text(dataSourceForm("name"), '_label -> "Name", 'placeholder -> "Name")
+                @b3.text(dataSourceForm("description"), '_label -> "Description", 'placeholder -> "This data is ...")
+                @b3.text(dataSourceForm("loadCommand"), '_label -> "Load Command", 'placeholder -> "LOAD ... USING ...")
+
+                @if(dataSourceForm.hasGlobalErrors) {
+                    @for(error <- dataSourceForm.globalErrors) {
+                        <div class="alert alert-danger">
+                        @Messages(error.messages, error.args)
+                        </div>
+                    }
+                }
+
+                @if(dataSourceForm.hasGlobalErrors) {
+                    @for(error <- dataSourceForm.globalErrors) {
+                        <div class="alert alert-danger">
+                        @Messages(error.messages, error.args)
+                        </div>
+                    }
+                }
+
+                @b3.submit('class -> "btn btn-default") { Create }
+            }
+        </div>
+
+    </div>
+}

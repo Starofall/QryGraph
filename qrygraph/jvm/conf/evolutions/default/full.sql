@@ -3,16 +3,7 @@ CREATE TABLE IF NOT EXISTS data_sources (
   id          VARCHAR(36)  NOT NULL,
   name        VARCHAR(255) NOT NULL,
   description VARCHAR(255) NOT NULL,
-  hdfsPath    VARCHAR(255) NOT NULL,
-  PRIMARY KEY (id)
-);
-
-CREATE TABLE IF NOT EXISTS data_sources_columns (
-  id              VARCHAR(36)  NOT NULL,
-  ordering        INT          NOT NULL,
-  data_sources_id VARCHAR(36)  NOT NULL,
-  name            VARCHAR(255) NOT NULL,
-  type            VARCHAR(255) NOT NULL,
+  loadCommand    VARCHAR(1024) NOT NULL,
   PRIMARY KEY (id)
 );
 

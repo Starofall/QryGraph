@@ -1,7 +1,5 @@
 package qrygraph.shared.data
 
-import qrygraph.shared.pig.{PField, Primitives}
-
 import scala.util.Random
 
 /** A node in the graph */
@@ -25,16 +23,17 @@ trait Node {
 }
 
 /** an Edge of a node */
-case class Edge(from: Output, to: Input, id: String){
+case class Edge(from: Output, to: Input, id: String) {
   override def toString: String = s"Edge($id # ${from.id} => ${to.id})"
 }
-object Edge{
+object Edge {
   // create the ID of the edge out of the two corresponding ids to be more deterministic
-  def apply(from: Output, to: Input) = new Edge(from,to,""+from.id+to.id)
+  def apply(from: Output, to: Input) = new Edge(from, to, "" + from.id + to.id)
 }
 
 /** an Input of a node */
 case class Input(parent: Node, id: String, label: String)
+
 /** a Output of a node */
 case class Output(parent: Node, id: String, label: String)
 
@@ -45,20 +44,17 @@ case class NodePosition(x: Int, y: Int, width: Int, height: Int)
 object NodePosition {
   def ZERO = NodePosition(0, 0, 200, 100)
 
-  def randomPosition = NodePosition(200+Random.nextInt(500), 100+Random.nextInt(500), 200, 100)
+  def randomPosition = NodePosition(200 + Random.nextInt(500), 100 + Random.nextInt(500), 200, 100)
 }
 
-/** a dataSource is a xml-described csv file that can be analyzed in the tool */
-case class DataSource(id: String, name: String, description: String, link: String, columns: List[Column], separator:String = ",") {
-  def getResultFields: List[PField] = columns.map(f => PField(f.name, Primitives.PInt))
-}
+/** a source used by a load command */
+case class QueryLoadSource(id: String, name: String, description: String, loadCommand: String)
 
 /** a column describes a csv-column and is used in schema configuration */
 case class Column(name: String, typeValue: String)
 
 /** a QueryContext holds a query, the dataSourceDefinitions and the QueryTypes */
-case class QueryContext(queryDataSources: List[DataSource] = List(),
-                        components: List[ServerComponent] = List())
+case class QueryContext(queryDataSources: List[QueryLoadSource] = List(), components: List[ServerComponent] = List())
 
 
 /** contains information about a component that is stored on the server */

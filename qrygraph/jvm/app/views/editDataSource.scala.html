@@ -1,0 +1,29 @@
+@import models.Tables.User
+@import b3.vertical.fieldConstructor // Declares a vertical field constructor as default
+
+
+@import controllers.forms.DataSourceForm
+@(usersRow: User, sourceId: String, dataSourceForm: Form[DataSourceForm])(implicit messages: Messages)
+
+@header("Create Query", usersRow) {
+    <!-- Page Content -->
+    <div class="container">
+        <div class="row">
+        @b3.form(routes.Settings.sourcesEditPOST(sourceId)) {
+            @b3.text(dataSourceForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")
+            @b3.text(dataSourceForm("description"), '_label -> "Description", 'placeholder -> "Goal of this query")
+            @b3.text(dataSourceForm("loadCommand"), '_label -> "Load Command", 'placeholder -> "LOAD ... USING ...")
+
+            @if(dataSourceForm.hasGlobalErrors) {
+                @for(error <- dataSourceForm.globalErrors) {
+                    <div class="alert alert-danger">
+                    @Messages(error.messages, error.args)
+                    </div>
+                }
+            }
+
+            @b3.submit('class -> "btn btn-default") { Edit }
+        }
+        </div>
+    </div>
+}

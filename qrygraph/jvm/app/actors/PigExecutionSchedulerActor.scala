@@ -2,27 +2,26 @@ package actors
 
 import java.util.concurrent.TimeUnit
 
-import actors.PigExecutorActor.{ExecutionScheduledTask, RequestSyncScheduling}
+import actors.PigExecutionSchedulerActor.{ExecutionScheduledTask, RequestSyncScheduling}
 import akka.actor.{Actor, Cancellable, Props}
 import akka.util.Timeout
-import models.Tables.{QueryExecution}
 import models.{DBEnums, DatabaseAccess}
 import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import services.PigExecution
 import us.theatr.akka.quartz._
 import util.FutureEnhancements._
 
-import scala.concurrent.Await
 import scala.concurrent.duration.{FiniteDuration, _}
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 /**
   * Execution of Pig querys in the database
   */
 
-class PigExecutorActor(val app: play.api.Application) extends Actor with DatabaseAccess {
+class PigExecutionSchedulerActor(val app: play.api.Application) extends Actor with DatabaseAccess {
   implicit val timeout = Timeout(FiniteDuration(1, TimeUnit.SECONDS))
-
 
   /** keeps track of jobs based on cron informations */
   val quartzActor = context.actorOf(Props[QuartzActor])
@@ -53,20 +52,20 @@ class PigExecutorActor(val app: play.api.Application) extends Actor with Databas
   }
 
   def receive: Receive = {
-    case AddCronScheduleFailure(error)   => error.printStackTrace()
-    case AddCronScheduleSuccess(cancel)  => cancelAbles ::= cancel
-    case RequestSyncScheduling           => syncScheduling()
-    case ExecutionScheduledTask(queryId) =>
-      import dbConfig.driver.api._
-      val executionId = newUUID()
-      runInsert(Tables.QueryExecutions += QueryExecution(executionId, DBEnums.ExecFailed, queryId, None, None))
-      Logger.error("I WOULD EXECUTE:" + queryId)
+    case AddCronScheduleFailure(error)  => error.printStackTrace()
+    case AddCronScheduleSuccess(cancel) => cancelAbles ::= cancel
+    case RequestSyncScheduling          => syncScheduling()
+
+    // execution should start now, create an executior
+    case ExecutionScheduledTask(queryId) => Future {
+      new PigExecution()(app).executePig(queryId)
+    }
   }
 }
 
 
-object PigExecutorActor {
-  def props(app: play.api.Application): Props = Props(new PigExecutorActor(app))
+object PigExecutionSchedulerActor {
+  def props(app: play.api.Application): Props = Props(new PigExecutionSchedulerActor(app))
   object RequestSyncScheduling
   case class ExecutionScheduledTask(queryId: String)
 }
@@ -83,7 +82,7 @@ trait PigExecutorHandling {
   synchronized(
     Await.result(system.actorSelection("/user/" + "query-executor").resolveOne().mapAll {
       case Success(actorRef) => // do not init again
-      case _                 => system.actorOf(PigExecutorActor.props(app), name = "query-executor") ! RequestSyncScheduling
+      case _                 => system.actorOf(PigExecutionSchedulerActor.props(app), name = "query-executor") ! RequestSyncScheduling
     }, 1.seconds)
   )
 
@@ -94,7 +93,7 @@ trait PigExecutorHandling {
         case Success(actorRef) =>
           actorRef ! RequestSyncScheduling
         case Failure(ex)       =>
-          val actor = system.actorOf(PigExecutorActor.props(app), name = "query-executor")
+          val actor = system.actorOf(PigExecutionSchedulerActor.props(app), name = "query-executor")
           actor ! RequestSyncScheduling
       }, 1.seconds)
     )

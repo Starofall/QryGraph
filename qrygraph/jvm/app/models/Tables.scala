@@ -9,12 +9,11 @@ object Tables extends {
 trait Tables {
   val profile: slick.driver.JdbcProfile
   import profile.api._
-  import slick.model.ForeignKeyAction
   // NOTE: GetResult mappers for plain SQL are only generated for tables where Slick knows how to map the types of all columns.
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = Array(DataSources.schema, DataSourcesColumns.schema, GlobalSettings.schema, PigComponents.schema, PigQueries.schema, QueryAccessRights.schema, QueryExecutions.schema, Users.schema, UserTokens.schema).reduceLeft(_ ++ _)
+  lazy val schema: profile.SchemaDescription = Array(DataSources.schema, GlobalSettings.schema, PigComponents.schema, PigQueries.schema, QueryAccessRights.schema, QueryExecutions.schema, Users.schema, UserTokens.schema).reduceLeft(_ ++ _)
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -22,8 +21,8 @@ trait Tables {
    *  @param id Database column ID SqlType(VARCHAR), PrimaryKey, Length(36,true)
    *  @param name Database column NAME SqlType(VARCHAR), Length(255,true)
    *  @param description Database column DESCRIPTION SqlType(VARCHAR), Length(255,true)
-   *  @param hdfspath Database column HDFSPATH SqlType(VARCHAR), Length(255,true) */
-  case class DataSource(id: String, name: String, description: String, hdfspath: String)
+   *  @param loadcommand Database column LOADCOMMAND SqlType(VARCHAR), Length(1024,true) */
+  case class DataSource(id: String, name: String, description: String, loadcommand: String)
   /** GetResult implicit for fetching DataSource objects using plain SQL queries */
   implicit def GetResultDataSource(implicit e0: GR[String]): GR[DataSource] = GR{
     prs => import prs._
@@ -31,9 +30,9 @@ trait Tables {
   }
   /** Table description of table DATA_SOURCES. Objects of this class serve as prototypes for rows in queries. */
   class DataSources(_tableTag: Tag) extends Table[DataSource](_tableTag, "DATA_SOURCES") {
-    def * = (id, name, description, hdfspath) <> (DataSource.tupled, DataSource.unapply)
+    def * = (id, name, description, loadcommand) <> (DataSource.tupled, DataSource.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(name), Rep.Some(description), Rep.Some(hdfspath)).shaped.<>({r=>import r._; _1.map(_=> DataSource.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(name), Rep.Some(description), Rep.Some(loadcommand)).shaped.<>({r=>import r._; _1.map(_=> DataSource.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column ID SqlType(VARCHAR), PrimaryKey, Length(36,true) */
     val id: Rep[String] = column[String]("ID", O.PrimaryKey, O.Length(36,varying=true))
@@ -41,45 +40,11 @@ trait Tables {
     val name: Rep[String] = column[String]("NAME", O.Length(255,varying=true))
     /** Database column DESCRIPTION SqlType(VARCHAR), Length(255,true) */
     val description: Rep[String] = column[String]("DESCRIPTION", O.Length(255,varying=true))
-    /** Database column HDFSPATH SqlType(VARCHAR), Length(255,true) */
-    val hdfspath: Rep[String] = column[String]("HDFSPATH", O.Length(255,varying=true))
+    /** Database column LOADCOMMAND SqlType(VARCHAR), Length(1024,true) */
+    val loadcommand: Rep[String] = column[String]("LOADCOMMAND", O.Length(1024,varying=true))
   }
   /** Collection-like TableQuery object for table DataSources */
   lazy val DataSources = new TableQuery(tag => new DataSources(tag))
-
-  /** Entity class storing rows of table DataSourcesColumns
-   *  @param id Database column ID SqlType(VARCHAR), PrimaryKey, Length(36,true)
-   *  @param ordering Database column ORDERING SqlType(INTEGER)
-   *  @param dataSourcesId Database column DATA_SOURCES_ID SqlType(VARCHAR), Length(36,true)
-   *  @param name Database column NAME SqlType(VARCHAR), Length(255,true)
-   *  @param `type` Database column TYPE SqlType(VARCHAR), Length(255,true) */
-  case class DataSourcesColumn(id: String, ordering: Int, dataSourcesId: String, name: String, `type`: String)
-  /** GetResult implicit for fetching DataSourcesColumn objects using plain SQL queries */
-  implicit def GetResultDataSourcesColumn(implicit e0: GR[String], e1: GR[Int]): GR[DataSourcesColumn] = GR{
-    prs => import prs._
-    DataSourcesColumn.tupled((<<[String], <<[Int], <<[String], <<[String], <<[String]))
-  }
-  /** Table description of table DATA_SOURCES_COLUMNS. Objects of this class serve as prototypes for rows in queries.
-   *  NOTE: The following names collided with Scala keywords and were escaped: type */
-  class DataSourcesColumns(_tableTag: Tag) extends Table[DataSourcesColumn](_tableTag, "DATA_SOURCES_COLUMNS") {
-    def * = (id, ordering, dataSourcesId, name, `type`) <> (DataSourcesColumn.tupled, DataSourcesColumn.unapply)
-    /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(ordering), Rep.Some(dataSourcesId), Rep.Some(name), Rep.Some(`type`)).shaped.<>({r=>import r._; _1.map(_=> DataSourcesColumn.tupled((_1.get, _2.get, _3.get, _4.get, _5.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
-
-    /** Database column ID SqlType(VARCHAR), PrimaryKey, Length(36,true) */
-    val id: Rep[String] = column[String]("ID", O.PrimaryKey, O.Length(36,varying=true))
-    /** Database column ORDERING SqlType(INTEGER) */
-    val ordering: Rep[Int] = column[Int]("ORDERING")
-    /** Database column DATA_SOURCES_ID SqlType(VARCHAR), Length(36,true) */
-    val dataSourcesId: Rep[String] = column[String]("DATA_SOURCES_ID", O.Length(36,varying=true))
-    /** Database column NAME SqlType(VARCHAR), Length(255,true) */
-    val name: Rep[String] = column[String]("NAME", O.Length(255,varying=true))
-    /** Database column TYPE SqlType(VARCHAR), Length(255,true)
-     *  NOTE: The name was escaped because it collided with a Scala keyword. */
-    val `type`: Rep[String] = column[String]("TYPE", O.Length(255,varying=true))
-  }
-  /** Collection-like TableQuery object for table DataSourcesColumns */
-  lazy val DataSourcesColumns = new TableQuery(tag => new DataSourcesColumns(tag))
 
   /** Entity class storing rows of table GlobalSettings
    *  @param id Database column ID SqlType(VARCHAR), PrimaryKey, Length(36,true)

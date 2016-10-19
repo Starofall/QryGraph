@@ -9,7 +9,7 @@
     }
     @frame(title) {
             <ul class="nav navbar-nav">
-            @views.Navigation.visibleNavButtons().map(renderNavButton)
+            @views.Navigation.visibleNavButtons(usersRow).map(renderNavButton)
             </ul>
             <ul class="nav navbar-nav pull-right">
                 <li><a href="#" disabled class="disabled">@usersRow.firstName @usersRow.lastName</a></li>
