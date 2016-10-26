@@ -1,6 +1,6 @@
 package models
 
-import models.Tables.User
+import models.Tables.{GlobalSetting, User}
 import play.api.Logger
 import prickle.Unpickle
 import qrygraph.shared.SharedMessages
@@ -49,6 +49,6 @@ trait MetaDataAccess {
   }
 
   /** load the global setting blocking */
-  val globalSetting = Await.result(runQuerySingle(Tables.GlobalSettings), 5.seconds).get
+  val globalSetting = Await.result(runQuerySingle(Tables.GlobalSettings), 5.seconds).getOrElse(GlobalSetting("", "", "", "", ""))
 
 }
