@@ -1,23 +1,36 @@
 package qrygraph.shared.layouting
 
-import qrygraph.shared.compilation.GraphFlatten
-import qrygraph.shared.data.{Node, PigQueryGraph}
+import qrygraph.shared.data.{Node, NodePosition, PigQueryGraph}
+import qrygraph.shared.nodes.NodeHelper
+
+import scala.util.Random
 
 /**
   * This object contains functions to layout a given qrygraph into a good looking graph
   */
 object GraphLayouter {
 
-  // MISSING IMPLEMENTATION!
-
-  private case class LayoutNode(node: Node, x: Int = 0, y: Int = 0)
+  /** contains a node and a mutable position that will be applied to the node */
+  private case class LayoutNode(node: Node, var x: Int = 0, var y: Int = 0)
 
   def layoutQrygraph(qrygraph: PigQueryGraph): PigQueryGraph = {
-    val dependencies = GraphFlatten.flattenDependency(qrygraph).reverse
-    val head = dependencies.head
+    // first we wrap the nodes into layout nodes with mutable positions
     val layoutNodes = qrygraph.nodes.map(LayoutNode(_))
+
+
     //@todo missing here is applying changes
-    qrygraph.copy(nodes = layoutNodes.map(_.node))
+    layoutNodes.foreach(n => {
+      n.x = Random.nextInt(500)
+      n.y = Random.nextInt(500)
+    })
+
+
+    // now we apply the layoutNode positions to the nodes
+    val finalLayout = layoutNodes.map(n => {
+      NodeHelper.nodePositionHelper(n.node, NodePosition(n.x, n.y))
+    })
+    // return a new graph using the layouted nodes
+    qrygraph.copy(nodes = finalLayout)
   }
 
 }

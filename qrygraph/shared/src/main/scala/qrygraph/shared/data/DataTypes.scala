@@ -38,7 +38,7 @@ case class Input(parent: Node, id: String, label: String)
 case class Output(parent: Node, id: String, label: String)
 
 /** represents the size and position of a node */
-case class NodePosition(x: Int, y: Int, width: Int, height: Int)
+case class NodePosition(x: Int, y: Int, width: Int = 200, height: Int = 100)
 
 /** demo positions */
 object NodePosition {

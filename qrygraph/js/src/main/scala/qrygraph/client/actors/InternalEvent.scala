@@ -19,3 +19,4 @@ case class UIUpdateFieldValue(nodeId: String, valueName: String, newValue: Strin
 case class UINodeMoved(nodeId: String, x: Int, y: Int) extends UIEvent
 case class UICreateNode(nodeName: String) extends UIEvent
 case class UIRequestExamples() extends UIEvent
+case class UILayoutGraph() extends UIEvent

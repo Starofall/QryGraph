@@ -4,6 +4,7 @@ import akka.actor.{Actor, Props}
 import qrygraph.client.ui.UI
 import qrygraph.shared.SharedMessages._
 import qrygraph.shared.data.PigQueryGraph
+import qrygraph.shared.layouting.GraphLayouter
 import qrygraph.shared.nodes.{ComponentNode, NodeHelper}
 
 /**
@@ -69,12 +70,15 @@ class ClientActor extends Actor {
 
     case UIUpdateFieldValue(nodeId, valueName, newValue) => updateAndUpload(valueName match {
       case "name" => state.graph.applyToNodeId(nodeId, _.applyValueChanges("name", NodeHelper.assureValidNodeName(newValue, state.graph.nodes.map(_.name))))
-      case _      => state.graph.applyToNodeId(nodeId, _.applyValueChanges(valueName, newValue.replaceAll(";","")/** prevent pig injection */))
+      case _      => state.graph.applyToNodeId(nodeId, _.applyValueChanges(valueName, newValue.replaceAll(";", "")
+
+        /** prevent pig injection */))
     })
 
     case UINodeMoved(nodeId, newX, newY)    => updateAndUpload(state.graph.applyToNodeId(nodeId, n => NodeHelper.nodePositionHelper(n, n.position.copy(x = newX, y = newY))))
     case UIRemoveEdge(fromPortId, toPortId) => updateAndUpload(state.graph.removeEdge(fromPortId, toPortId))
     case UIRemoveNode(nodeId)               => updateAndUpload(state.graph.removeNode(nodeId))
+    case UILayoutGraph()                    => updateAndUpload(GraphLayouter.layoutQrygraph(state.graph))
     case UIDeployGraph()                    => UI.DeployButton.disable(); self ! CDeployDraftRequest()
     case UIRevertToDeployed()               => self ! CRevertToDeployedRequest()
     case UINodesDeselected()                => state.activatedNodeOption = None; UI.RightToolbar.hide()

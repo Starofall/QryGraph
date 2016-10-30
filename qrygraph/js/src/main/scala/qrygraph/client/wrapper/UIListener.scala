@@ -36,5 +36,7 @@ object UIListener {
   def createNode(nodeName: String) = Main.clientActor ! UICreateNode(nodeName)
 
   def requestExamples() = Main.clientActor ! UIRequestExamples()
+
+  def layoutGraph() = Main.clientActor ! UILayoutGraph()
 }
 
