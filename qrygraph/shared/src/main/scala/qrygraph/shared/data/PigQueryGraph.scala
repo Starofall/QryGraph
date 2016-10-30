@@ -95,6 +95,7 @@ case class PigQueryGraph(nodes: List[Node] = List(), edges: List[Edge] = List())
     }))
   }
 
+  /** removes a node from the graph */
   def removeNode(nodeId: String): PigQueryGraph = {
     // create a new graph without the node to remove
     this.copy(
@@ -121,7 +122,6 @@ case class PigQueryGraph(nodes: List[Node] = List(), edges: List[Edge] = List())
       case true  => println("WARNUNG: CYCLE DETECTED");this
       case false => newGraph
     }
-
   }
 
   /** adds a node to the graph */

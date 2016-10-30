@@ -6,7 +6,7 @@ import qrygraph.shared.nodes._
 
 class QueryCompilerTest extends FunSpec {
 
-  val defaultDataSource = DataSource("A", "test", "desc", "url", List(), ",")
+  val defaultDataSource = QueryLoadSource("data","name","desc","LOAD 'url' USING PigStorage(',') AS ()")
 
   describe("QueryCompiler") {
     // Create a demo graph
@@ -30,7 +30,7 @@ class QueryCompilerTest extends FunSpec {
 
     val exampleGraph = PigQueryGraph(nodes, edges)
     val dataSource = List(
-      DataSource("dataSourceID", "test", "desc", "url", List())
+     QueryLoadSource("data","name","desc","LOAD 'url' USING PigStorage(',') AS ()")
     )
 
     it("should compile complex graphs") {

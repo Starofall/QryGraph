@@ -8,6 +8,12 @@
 @header("Create Query", usersRow) {
     <!-- Page Content -->
     <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Edit Component</h1>
+                <p class="lead">Here you can edit a components information</p>
+            </div>
+        </div>
         @*//todo fix id*@
         <div class="row">
         @b3.form(routes.Components.editPOST(queryId)) {

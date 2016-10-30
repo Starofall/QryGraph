@@ -24,9 +24,10 @@ abstract class AbstractCollaborationActor extends Actor {
   /** abstract message handler */
   def handleMessage: PartialFunction[NetworkMessage, Unit]
 
-  /** central recieve */
+  /** central receive */
   def receive: Receive = {
 
+    // we require that a message has a user/owner
     case UserMessage(user, message) =>
       // add actor if not done
       if (!connectedUsers.exists(_._2 == sender())) {

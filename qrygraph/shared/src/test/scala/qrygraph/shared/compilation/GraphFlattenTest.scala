@@ -6,7 +6,7 @@ import qrygraph.shared.nodes._
 
 class GraphFlattenTest extends FunSpec {
 
-  val defaultDataSource = DataSource("A", "test", "desc", "url", List())
+  val defaultDataSource = QueryLoadSource("data","name","desc","LOAD 'bla.csv' ")
 
   describe("GraphFlatten") {
     val l1 = LoadNode("10", "CarDB", defaultDataSource)

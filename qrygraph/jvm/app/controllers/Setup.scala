@@ -12,6 +12,7 @@ import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
+import util.Actions.CheckSetup
 import util.HDFS
 
 import scala.concurrent.Future
@@ -22,19 +23,17 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
   import dbConfig.driver.api._
   import util.FutureEnhancements._
 
-  def indexGET = Action { implicit request =>
+  def indexGET = CheckSetup(app,continueOnDone = false) { implicit request =>
     Ok(views.html.setup(SetupForm.form))
   }
 
-
-  def indexPOST = Action.async { implicit request =>
+  def indexPOST = CheckSetup(app,continueOnDone = false).async { implicit request =>
     // On deployment, set the correct home dir
     if (!System.getProperty("user.dir").contains(":")) {
       Logger.info("Old user.dir: " + System.getProperty("user.dir"))
       System.setProperty("user.dir", "/app/")
       Logger.info("New user.dir: " + System.getProperty("user.dir"))
     }
-    // @todo disable once setup is done
 
     // check form
     SetupForm.form.bindFromRequest.fold(

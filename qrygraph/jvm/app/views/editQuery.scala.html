@@ -10,6 +10,12 @@
     <div class="container">
         @*//todo fix id*@
         <div class="row">
+            <div class="col-lg-12">
+                <h1>Edit Query</h1>
+                <p class="lead">Here you can edit a query</p>
+            </div>
+        </div>
+        <div class="row">
         @b3.form(routes.Queries.editPOST(queryId)) {
             @b3.text(pigQueryForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")
             @b3.text(pigQueryForm("description"), '_label -> "Description", 'placeholder -> "Goal of this query")

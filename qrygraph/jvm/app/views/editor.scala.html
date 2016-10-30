@@ -22,10 +22,10 @@
                     <a id="undoButtonDisabled" class="btn">
                         <i class="fa fa-undo fa-fw" style="color: lightgray" data-toggle="tooltip" data-placement="bottom" title="No last change"></i>
                     </a>
-                    <a id="deployButtonEnabled" class="btn" style="display: none" onclick="UIListener().deployGraph()">
+                    <a id="deployButtonEnabled" class="btn"  onclick="UIListener().deployGraph()">
                         <i class="fa fa-floppy-o fa-fw" style="color: black" data-toggle="tooltip" data-placement="bottom" title="Deploy Graph"></i>
                     </a>
-                    <a id="deployButtonDisabled" class="btn">
+                    <a id="deployButtonDisabled" class="btn" style="display: none">
                         <i class="fa fa-floppy-o fa-fw" style="color: lightgray" data-toggle="tooltip" data-placement="bottom" title="Already deployed"></i>
                     </a>
                     <a id="revertToDeployedButton" class="btn" onclick="UIListener().revertToDeployed()">

@@ -10,13 +10,10 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-/**
-  * Created by info on 15.06.2016.
-  */
+/** injects access to meta data */
 trait MetaDataAccess {
   self: DatabaseAccess =>
 
-  /* DATABASE */
 
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
   import util.FutureEnhancements._
@@ -37,6 +34,7 @@ trait MetaDataAccess {
     }, 20.seconds)
   }
 
+  /** returns all published components as a list */
   def loadPublishedComponents(): List[ServerComponent] = {
     import dbConfig.driver.api._
     implicit val nodePickler = SharedMessages.nodePickler

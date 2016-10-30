@@ -17,9 +17,8 @@ import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 /**
-  * Execution of Pig querys in the database
+  * Execution of Pig queries in the database
   */
-
 class PigExecutionSchedulerActor(val app: play.api.Application) extends Actor with DatabaseAccess {
   implicit val timeout = Timeout(FiniteDuration(1, TimeUnit.SECONDS))
 
@@ -29,6 +28,7 @@ class PigExecutionSchedulerActor(val app: play.api.Application) extends Actor wi
   /** a list of jobs submitted, used to cancle them for syncing */
   var cancelAbles = List[Cancellable]()
 
+  /** syncs the database for all queries */
   def syncScheduling(): Unit = {
     Logger.debug("Resyncing PigExecution due to changes in the query list")
     import dbConfig.driver.api._
@@ -56,21 +56,22 @@ class PigExecutionSchedulerActor(val app: play.api.Application) extends Actor wi
     case AddCronScheduleSuccess(cancel) => cancelAbles ::= cancel
     case RequestSyncScheduling          => syncScheduling()
 
-    // execution should start now, create an executior
+    // execution should start now, create an execution
     case ExecutionScheduledTask(queryId) => Future {
       new PigExecution()(app).executePig(queryId)
     }
   }
 }
 
-
 object PigExecutionSchedulerActor {
   def props(app: play.api.Application): Props = Props(new PigExecutionSchedulerActor(app))
+  /** request sync */
   object RequestSyncScheduling
+  /** scheduling */
   case class ExecutionScheduledTask(queryId: String)
 }
 
-
+/** trait used to execute pig on scheduling */
 trait PigExecutorHandling {
   val app: play.api.Application
   implicit val materializer = app.materializer
@@ -85,7 +86,6 @@ trait PigExecutorHandling {
       case _                 => system.actorOf(PigExecutionSchedulerActor.props(app), name = "query-executor") ! RequestSyncScheduling
     }, 1.seconds)
   )
-
 
   def syncQuerySchedules() = {
     synchronized(

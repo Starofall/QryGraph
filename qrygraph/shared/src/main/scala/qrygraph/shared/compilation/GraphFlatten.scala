@@ -10,10 +10,6 @@ import qrygraph.shared.nodes.ComponentNode
   */
 object GraphFlatten {
 
-  //  LoggerConfig.factory = PrintLoggerFactory()
-
-  //  def log = //println("YEAH")
-
   /** wrapper class for the dependency evaluation, tries is a quick fix to resolve the problem of cylces */
   private case class DepNode(value: Node, var outgoing: List[DepNode] = List(), var incoming: List[DepNode] = List(), var tries: Int = 0) {
     override def toString: String = s"Node(${value.id})"

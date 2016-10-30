@@ -9,7 +9,12 @@
 @header("Create Query", usersRow) {
     <!-- Page Content -->
     <div class="container">
-
+        <div class="row">
+            <div class="col-lg-12">
+                <h1>Create Component</h1>
+                <p class="lead">Here you can create a new component</p>
+            </div>
+        </div>
         <div class="row">
         @b3.form(routes.Components.createPOST()) {
             @b3.text(pigQueryForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")

@@ -7,7 +7,6 @@ import scala.language.implicitConversions
   */
 object DBEnums {
 
-
   val RoleAdmin = "admin"
   val RoleUser = "user"
 

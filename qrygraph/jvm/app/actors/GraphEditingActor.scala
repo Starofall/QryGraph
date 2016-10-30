@@ -16,13 +16,16 @@ import scala.concurrent.Future
   * the graphId is guaranteed to be valid
   */
 class GraphEditingActor(graphId: String, val app: Application) extends AbstractCollaborationActor with DatabaseAccess with GraphAccess with MetaDataAccess with PicklerImplicits {
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  /* STATE */
+  /** the state of the graph */
   var graphStore: PigQuery = loadGraph(graphId).get
 
+  /** parses the deployed graph */
   def parsedQrygraphDeployed = Unpickle[PigQueryGraph].fromString(graphStore.serializedDeployedQuerie.getOrElse("")).getOrElse(PigQueryGraph.outputOnly)
 
+  /** the state of draft graph */
   def parsedQrygraphDraft = Unpickle[PigQueryGraph].fromString(graphStore.serializedDraftQuerie.getOrElse("")).getOrElse(PigQueryGraph.outputOnly)
 
   def handleMessage = {
@@ -34,17 +37,15 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
       )
       storeGraph(graphStore)
       broadCast(SPigQueryQraphUpdate(parsedQrygraphDraft))
-      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
+      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting, parsedQrygraphDraft)
       broadCast(SQueryTypes(types, errors))
 
     case CDeployDraftRequest() =>
       // we copy the draft into the deployed field and set undeployedChanges to false
       graphStore = graphStore.copy(
         serializedDeployedQuerie = graphStore.serializedDraftQuerie,
-        undeployedChanges = false
-      )
+        undeployedChanges = false)
       storeGraph(graphStore)
-    // notify user?
 
     case CQueryExamplesRequest() =>
       val currentSender = sender()
@@ -65,7 +66,7 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
       // update every other user about the change
       broadCast(SPigQueryQraphUpdate(graph), Some(sender()))
       // now check the graph
-      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
+      val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting, parsedQrygraphDraft)
       broadCast(SQueryTypes(types, errors))
 
     // Client Requested a Graph
@@ -79,11 +80,9 @@ class GraphEditingActor(graphId: String, val app: Application) extends AbstractC
       }
       // evaluate the type system and send the update to the client
       Future {
-        val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting,parsedQrygraphDraft)
+        val (types, errors) = PigTypeDetection.evaluateTypes(globalSetting, parsedQrygraphDraft)
         currentSender ! SQueryTypes(types, errors)
       }
-      // send results to client
-
   }
 }
 

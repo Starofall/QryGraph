@@ -18,6 +18,7 @@ import scala.concurrent.{Future, Promise}
 /** The PigExecution object handle the execution of a qrygraph on the Hadoop cluster */
 object PigExampleGenerator {
 
+  /** generates examples of a given pigQuery */
   def generateExamples(settings: GlobalSetting, qrygraph: PigQueryGraph): Future[Map[String, List[List[String]]]] = {
     Logger.info(s"Using setting for execution of Query: $settings")
 

@@ -18,7 +18,7 @@ object QueryCompiler {
     // then for each node compile
     flattenDependency.map(n => {
       // create a list of incoming node names
-      val incomingnames = n.inputs
+      val incomingNames = n.inputs
         // for each input
         .map(i => componentRemovedGraph.incomingOutput(i))
         // find the corresponding outputOption
@@ -28,7 +28,7 @@ object QueryCompiler {
           output.label
         )
       )
-      (n, n.compileToPig(incomingnames).mkString(""))
+      (n, n.compileToPig(incomingNames).mkString(""))
     })
   }
 

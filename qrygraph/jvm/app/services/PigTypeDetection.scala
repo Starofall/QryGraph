@@ -12,13 +12,11 @@ import qrygraph.shared.pig._
 
 import scala.collection.JavaConversions._
 
-/**
-  * here are functions that are used to determine the type of a query using the Pig toolSet
-  */
+/** here are functions that are used to determine the type of a query using the Pig toolSet */
 object PigTypeDetection {
 
   /** this function returns the types of all aliases in the query */
-  def evaluateTypes(settings: GlobalSetting,graph: PigQueryGraph): (Map[String, ResultType], Map[String, String]) = {
+  def evaluateTypes(settings: GlobalSetting, graph: PigQueryGraph): (Map[String, ResultType], Map[String, String]) = {
     Logger.info("Starting type evaluation")
 
     // On deployment, set the correct home dir

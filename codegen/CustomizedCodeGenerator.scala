@@ -20,11 +20,14 @@ object CustomizedCodeGenerator {
         "Tables",
         "Tables.scala"
       )),
-      1400.seconds
+      1400.seconds // just to be sure
     )
   }
 
+  /** db based on config */
   val db = H2Driver.api.Database.forURL(Config.url, driver = Config.jdbcDriver)
+
+  /** code generation function*/
   val codegen = db.run(H2Driver.createModel(Some(H2Driver.defaultTables))).map { model =>
     new slick.codegen.SourceCodeGenerator(model) {
       // customize Scala entity name (case class, etc.)

@@ -9,6 +9,7 @@ object FutureEnhancements {
   // add global execution context
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  /** enhances futures with specials functions */
   implicit class FutureCompanionOps(val f: Future.type) extends AnyVal {
     // idea from here: http://stackoverflow.com/questions/20874186/scala-listfuture-to-futurelist-disregarding-failed-futures
     def allAsOptions[T](fItems: /* future items */ List[Future[T]]): Future[List[Option[T]]] = {
@@ -21,7 +22,7 @@ object FutureEnhancements {
     }
   }
 
-
+  /** adds mapAll and flatMapAll to futures */
   implicit class FutureExtensions[T](f: Future[T]) {
     def mapAll[Target](m: Try[T] => Target)(implicit ec: ExecutionContext): Future[Target] = {
       val p = Promise[Target]()

@@ -18,25 +18,27 @@ import qrygraph.shared.data.PigQueryGraph
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-/**
-  * Created by info on 19.10.2016.
-  */
+/** async execution of a pig query on the hadoop system */
 class PigExecution(implicit val app: Application) extends DatabaseAccess with MetaDataAccess with PicklerImplicits {
 
   import dbConfig.driver.api._
 
-  val settings = globalSetting
-  val hdfsUrl = globalSetting.fsDefaultName
+  // simplifiers
+  private val settings = globalSetting
+  private val hdfsUrl = globalSetting.fsDefaultName
   //"hdfs://localhost:9001"
-  val qryGraphFolder = globalSetting.qrygraphFolder //"/user/qrygraph/"
+  private val qryGraphFolder = globalSetting.qrygraphFolder //"/user/qrygraph/"
 
+  /** executes a pigQuery based on a queryId */
   def executePig(queryId: String) = {
-    val x = Await.result(runQuerySingle(Tables.PigQueries.filter(_.id === queryId)), 4.seconds).get
+    // load query from database
+    val query = Await.result(runQuerySingle(Tables.PigQueries.filter(_.id === queryId)), 4.seconds).get
 
-    def qrygraph = Unpickle[PigQueryGraph].fromString(x.serializedDeployedQuerie.getOrElse("")).getOrElse(PigQueryGraph.outputOnly)
+    // unserialized query
+    def qrygraph = Unpickle[PigQueryGraph].fromString(query.serializedDeployedQuerie.getOrElse("")).getOrElse(PigQueryGraph.outputOnly)
 
-    db.run(Tables.PigQueries.insertOrUpdate(x.copy(executionStatus = DBEnums.RunRunning)))
-
+    // set database to running
+    db.run(Tables.PigQueries.insertOrUpdate(query.copy(executionStatus = DBEnums.RunRunning)))
     //Start executing pig query
     UserGroupInformation.createRemoteUser(settings.hadoopUser, AuthMethod.SIMPLE).doAs(new PrivilegedAction[Unit] {
       override def run(): Unit = {
@@ -59,7 +61,7 @@ class PigExecution(implicit val app: Application) extends DatabaseAccess with Me
         pigServer.registerQuery(s"STORE storage INTO '${globalSetting.qrygraphFolder}/results/$queryId' using PigStorage(',');")
         pigServer.shutdown()
         // finish
-        db.run(Tables.PigQueries.insertOrUpdate(x.copy(executionStatus = DBEnums.RunScheduled)))
+        db.run(Tables.PigQueries.insertOrUpdate(query.copy(executionStatus = DBEnums.RunScheduled)))
       }
     })
   }

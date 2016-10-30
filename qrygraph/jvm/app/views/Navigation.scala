@@ -17,12 +17,12 @@ object Navigation {
   case object Queries extends NavButton {
     val name = "Queries"
 
-    def route = controllers.routes.Queries.index.url
+    def route = controllers.routes.Queries.indexGET.url
   }
   case object Components extends NavButton {
     val name = "Components"
 
-    def route = controllers.routes.Components.index.url
+    def route = controllers.routes.Components.indexGET.url
   }
   case object Settings extends NavButton {
     val name = "Settings"

@@ -18,17 +18,17 @@ object Actions {
 
   /** A action for a public available url with user checking and logging */
   def PublicAction(app: Application): ActionBuilder[UserOptionalRequest] = {
-    CheckSetupDone(app) andThen CheckTokenAction(app) andThen LogAction
+    CheckSetup(app) andThen CheckTokenAction(app) andThen LogAction
   }
 
   /** a private action only available to logged in users */
   def AuthedAction(implicit app: Application) = {
-    CheckSetupDone(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction
+    CheckSetup(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction
   }
 
   /** a private action only available to logged in users */
   def AdminAction(implicit app: Application) = {
-    CheckSetupDone(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction andThen AdminOnlyAction
+    CheckSetup(app) andThen CheckTokenAction(app) andThen LogAction andThen UserOnlyAction andThen AdminOnlyAction
   }
 
   /** Reads a query from the database and appends it */
@@ -84,7 +84,6 @@ object Actions {
       }
     }
   }
-
   /** Reads a query from the database and appends it */
   case class ReadComponentFromId(app: Application, queryId: String) extends ActionRefiner[UserRequest, ComponentRequest] with DatabaseAccess {
 
@@ -108,20 +107,22 @@ object Actions {
   case class UserOptionalRequest[A](user: Option[User], request: Request[A]) extends WrappedRequest[A](request)
   /** a request called in a privat area where there must be a user present */
   case class UserRequest[A](user: User, request: Request[A]) extends WrappedRequest[A](request)
+  /** request with a dataSource */
   case class DataSourceRequest[A](dataSource: DataSource, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
+  /** request with a dbUser */
   case class DBUserRequest[A](dbUser: User, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
+  /** request with a query */
   case class QueryRequest[A](pigQueriesRow: PigQuery, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
+  /** request with a component */
   case class ComponentRequest[A](componentRow: PigComponent, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
-
-
   /** logs the user/request informations to the console */
   object LogAction extends ActionFilter[UserOptionalRequest] {
     protected def filter[B](request: UserOptionalRequest[B]): Future[Option[Result]] = {
@@ -130,7 +131,6 @@ object Actions {
       Future(None)
     }
   }
-
   /** throw an error if the user is not valid at this point */
   object UserOnlyAction extends ActionRefiner[UserOptionalRequest, UserRequest] {
 
@@ -142,7 +142,6 @@ object Actions {
       })
     }
   }
-
   /** logs the user/request informations to the console */
   object AdminOnlyAction extends ActionFilter[UserRequest] {
     protected def filter[B](request: UserRequest[B]): Future[Option[Result]] = {
@@ -153,8 +152,6 @@ object Actions {
       }
     }
   }
-
-
   /** checks the token from the request to the token database and either forwards a user or a none and logs errors */
   case class CheckTokenAction(app: Application) extends ActionBuilder[UserOptionalRequest] with ActionTransformer[Request, UserOptionalRequest] with LoginAccess {
 
@@ -179,22 +176,27 @@ object Actions {
         Future(UserOptionalRequest(None, request))
     }
   }
-
-
   /** checks if the initial setup has been done */
-  case class CheckSetupDone(app: Application) extends ActionBuilder[Request] with ActionRefiner[Request, Request] with DatabaseAccess {
+  case class CheckSetup(app: Application, continueOnDone: Boolean = true) extends ActionBuilder[Request] with ActionRefiner[Request, Request] with DatabaseAccess {
 
     import util.FutureEnhancements._
 
     def refine[A](request: Request[A]): Future[Either[Result, Request[A]]] = {
       import dbConfig.driver.api._
-      runQuerySingle(Users.filter(_.id === "1")).mapAll {
-        case Success(value) => if (value.isEmpty) {
-          Left(Results.Redirect(routes.Setup.indexGET()))
-        } else {
-          Right(request)
-        }
-        case Failure(error) => Left(Results.Redirect(routes.Setup.indexGET()))
+      continueOnDone match {
+        case true =>
+          // aka process if config is set, else goto setup
+          runQuerySingle(Users.filter(_.id === "1")).mapAll {
+            case Success(Some(value)) => Right(request)
+            case _                    => Left(Results.Redirect(routes.Setup.indexGET()))
+          }
+
+        case false =>
+          // aka process if config is NOT set, else goto setup
+          runQuerySingle(Users.filter(_.id === "1")).mapAll {
+            case Success(Some(value)) => Left(Results.Redirect(routes.Queries.indexGET()))
+            case _                    => Right(request)
+          }
       }
     }
   }

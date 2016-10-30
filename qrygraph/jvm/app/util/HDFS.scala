@@ -14,17 +14,16 @@ import org.apache.hadoop.util.Progressable
 import scala.concurrent.{Future, Promise}
 import collection.JavaConverters._
 
-/**
-  * Created by info on 03.10.2016.
-  */
+/** manages the connection to the HDFS */
 object HDFS {
 
-
+  /** writes a file to HDFS */
   def writeFile(globalSetting: Tables.GlobalSetting, fileName: String, uploadedFile: File) = {
     val fis = new FileInputStream(uploadedFile)
     writeStream(globalSetting, fileName, fis)
   }
 
+  /** writes a stream to HDFS */
   def writeStream(globalSetting: Tables.GlobalSetting, fileName: String, inputStream: InputStream) = {
     val hdfsUrl = globalSetting.fsDefaultName
     //"hdfs://localhost:9001"
@@ -76,10 +75,10 @@ object HDFS {
   }
 
 
-  def readResults(globalSetting: Tables.GlobalSetting, queryId: String): Future[List[String]] = {
+  /** reads results of a query execution */
+  def readResults(globalSetting: Tables.GlobalSetting, queryId: String, dataLimit: Option[Int] = None): Future[List[String]] = {
     val hdfsUrl = globalSetting.fsDefaultName
-    //"hdfs://localhost:9001"
-    val qryGraphFolder = globalSetting.qrygraphFolder //"/user/qrygraph/"
+    val qryGraphFolder = globalSetting.qrygraphFolder
 
     val promise = Promise[List[String]]()
 
@@ -95,7 +94,11 @@ object HDFS {
         } else {
           // results available -> read them
           val br = new BufferedReader(new InputStreamReader(hdfs.open(file)))
-          promise.success(br.lines().iterator().asScala.toList)
+          // apply the datalimit if set
+          dataLimit match {
+            case Some(n) => promise.success(br.lines().iterator().asScala.take(n).toList)
+            case None    => promise.success(br.lines().iterator().asScala.toList)
+          }
         }
         hdfs.close()
       }

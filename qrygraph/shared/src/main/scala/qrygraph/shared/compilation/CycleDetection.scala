@@ -2,9 +2,7 @@ package qrygraph.shared.compilation
 
 import qrygraph.shared.data.PigQueryGraph
 
-/**
-  * Created by info on 05.10.2016.
-  */
+/** detecting cycles in graphs */
 object CycleDetection {
 
   /** a graph has a cycle if the flattenDependency removed at least one node it */

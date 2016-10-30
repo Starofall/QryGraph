@@ -4,12 +4,15 @@ import javax.inject._
 
 import actors.PigExecutorHandling
 import com.google.inject.Inject
-import controllers.forms.PigQueryForm
+import controllers.forms.{PigQueryForm, PigQueryImportForm}
 import models.Tables.PigQuery
 import models.{DBEnums, DatabaseAccess, MetaDataAccess}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
+import prickle.Pickle
+import qrygraph.shared.SharedMessages.PicklerImplicits
+import qrygraph.shared.parser.PigScriptParser
 import services.PigExecution
 import util.Actions._
 import util.FutureEnhancements._
@@ -19,11 +22,11 @@ import scala.concurrent.Future
 
 @Singleton
 class Queries @Inject()(implicit val app: play.api.Application, val messagesApi: MessagesApi)
-  extends Controller with DatabaseAccess with I18nSupport with PigExecutorHandling with MetaDataAccess {
+  extends Controller with DatabaseAccess with I18nSupport with PigExecutorHandling with MetaDataAccess with PicklerImplicits {
 
   import dbConfig.driver.api._
 
-  def index() = AuthedAction.async { implicit request =>
+  def indexGET() = AuthedAction.async { implicit request =>
     runQuery(Tables.PigQueries.filter(_.creatorUserId === request.user.id)).map(q =>
       Ok(views.html.queries(request.user, q))
     )
@@ -45,7 +48,31 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
           PigQuery(newUUID(), createRequest.name, createRequest.description, None, None, undeployedChanges = false, request.user.id, DBEnums.AuthApproved, "waiting", createRequest.cronjob)
         ).mapAll { _ =>
           syncQuerySchedules()
-          Redirect(routes.Queries.index())
+          Redirect(routes.Queries.indexGET())
+        }
+      }
+    )
+  }
+
+  def importGET = AuthedAction(app) { request =>
+    Ok(views.html.importQuery(request.user, PigQueryImportForm.form))
+  }
+
+  def importPOST = AuthedAction.async { implicit request =>
+    PigQueryImportForm.form.bindFromRequest.fold(
+      // Form errors
+      formWithErrors => {
+        Future(BadRequest(views.html.importQuery(request.user, formWithErrors)))
+      },
+      // Correct form
+      createRequest => {
+        val parsedQuery = PigScriptParser.parsePigScript(createRequest.importString)
+        val serialized = Pickle.intoString(parsedQuery)
+        runInsert(Tables.PigQueries +=
+          PigQuery(newUUID(), createRequest.name, createRequest.description, Some(serialized), None, undeployedChanges = false, request.user.id, DBEnums.AuthApproved, "waiting", createRequest.cronjob)
+        ).mapAll { _ =>
+          syncQuerySchedules()
+          Redirect(routes.Queries.indexGET())
         }
       }
     )
@@ -68,12 +95,11 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
         val newQuery = request.pigQueriesRow.copy(name = editRequest.name, description = editRequest.description, cronjob = editRequest.cronjob)
         runInsert(Tables.PigQueries.insertOrUpdate(newQuery)).mapAll { _ =>
           syncQuerySchedules()
-          Redirect(routes.Queries.index())
+          Redirect(routes.Queries.indexGET())
         }
       }
     )
   }
-
 
   def deleteQuery(id: String) = AuthedAction.async { implicit request =>
     val future = db.run(Tables.PigQueries
@@ -83,18 +109,17 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
     future
       .map(i => {
         syncQuerySchedules()
-        Redirect(routes.Queries.index())
+        Redirect(routes.Queries.indexGET())
       })
       .recover { case f => Unauthorized(f.toString) }
   }
-
 
   def run(id: String) = AuthedAction(app) {
     // start actor to run the execution
     Future {
       new PigExecution().executePig(id)
     }
-    Redirect(routes.Queries.index())
+    Redirect(routes.Queries.indexGET())
   }
 
   def results(id: String) = AuthedAction(app).async { implicit request =>

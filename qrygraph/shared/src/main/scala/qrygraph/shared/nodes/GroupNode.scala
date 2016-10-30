@@ -12,8 +12,8 @@ case class GroupNode(id: String = Random.nextInt.toString,
                      groupBy: String = "",
                      position: NodePosition = NodePosition.randomPosition) extends Node {
 
-  val inputs = List(Input(this, id + "-1", "Group"))
-  val outputs = List(Output(this, id + "-2", name))
+  val inputs = List(Input(this, id + "-in", "Group"))
+  val outputs = List(Output(this, id + "-out", name))
 
   def compileToPig(incomingNames: List[Option[String]]): List[String] = incomingNames.head match {
     case Some(i) => if(groupBy == "all"){

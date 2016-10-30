@@ -3,17 +3,15 @@
 # ~~~~
 
 # Home page
-GET         /                                   @controllers.Queries.index
+GET         /                                   @controllers.Queries.indexGET
 
 # Auth
 GET         /login                              @controllers.Auth.loginGET
 POST        /login                              @controllers.Auth.loginPOST
 GET         /logout                             @controllers.Auth.logoutGET
 
-GET         /register                           @controllers.Auth.register
-
 # Queries
-GET         /queries                            @controllers.Queries.index
+GET         /queries                            @controllers.Queries.indexGET
 
 # Queries
 GET         /upload                             @controllers.Upload.uploadGET
@@ -23,6 +21,8 @@ POST        /upload                             @controllers.Upload.uploadPOST
 # Single Query CRUD
 GET         /query/create                       @controllers.Queries.createGET
 POST        /query/create                       @controllers.Queries.createPOST
+GET         /query/import                       @controllers.Queries.importGET
+POST        /query/import                       @controllers.Queries.importPOST
 GET         /query/edit/:id                     @controllers.Queries.editGET(id:String)
 POST        /query/edit/:id                     @controllers.Queries.editPOST(id:String)
 POST        /query/delete/:id                   @controllers.Queries.deleteQuery(id:String)
@@ -33,7 +33,7 @@ GET         /query/run/:id                      @controllers.Queries.run(id:Stri
 GET         /query/editor/:id                   @controllers.Queries.editor(id:String)
 
 # Components
-GET         /components                         @controllers.Components.index
+GET         /components                         @controllers.Components.indexGET
 GET         /components/editor/:id              @controllers.Components.editor(id:String)
 GET         /components/create                  @controllers.Components.createGET
 POST        /components/create                  @controllers.Components.createPOST

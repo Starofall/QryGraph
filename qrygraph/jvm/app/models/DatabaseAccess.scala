@@ -7,9 +7,7 @@ import slick.driver.JdbcProfile
 import slick.jdbc.JdbcBackend
 import util.RuntimeRef
 
-/**
-  * An abstraction for a controller that is using slick database
-  */
+/** an abstraction for a controller that is using slick database */
 trait DatabaseAccess extends RuntimeRef {
 
   val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfigProvider.get[JdbcProfile](this.app)

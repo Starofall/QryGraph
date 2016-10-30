@@ -9,12 +9,13 @@ import qrygraph.shared.SharedMessages._
 import qrygraph.shared.data._
 import services.PigTypeDetection
 
-
+/** actor for editing components */
 class ComponentEditingActor(componentId: String, val app: Application) extends AbstractCollaborationActor with DatabaseAccess with ComponentAccess with MetaDataAccess with PicklerImplicits {
 
-  /* STATE */
+  /** the state of the graph */
   var graphStore: PigComponent = loadComponent(componentId).get
 
+  /** parsing the graph that is in the state */
   def parsedComponentGraph = Unpickle[PigQueryGraph].fromString(graphStore.serializedQuerie.getOrElse("")).getOrElse(PigQueryGraph.empty)
 
   def handleMessage = {
@@ -28,7 +29,6 @@ class ComponentEditingActor(componentId: String, val app: Application) extends A
       // we copy the draft into the deployed field and set undeployedChanges to false
       graphStore = graphStore.copy(serializedQuerie = graphStore.serializedQuerie, published = true)
       storeComponent(graphStore)
-    // notify user?
 
     case CDraftGraphUpdate(graph) =>
       // client send us an updated graph, we have to save it and mark the query as changed
@@ -48,7 +48,8 @@ class ComponentEditingActor(componentId: String, val app: Application) extends A
       sender ! SQueryMetaData(loadDataSources(), loadPublishedComponents())
       // send the DataSources to the client (using debug if not available atm)
       sender ! SPigQueryQraphUpdate(parsedComponentGraph)
-    case x                    => Logger.warn("Unknown packet in ServerActor - content:" + x.toString)
+
+    case x => Logger.warn("Unknown packet in ServerActor - content:" + x.toString)
   }
 }
 

@@ -19,8 +19,7 @@ class Components @Inject()(implicit val app: play.api.Application, val messagesA
 
   import dbConfig.driver.api._
 
-
-  def index() = AuthedAction(app).async { implicit request =>
+  def indexGET() = AuthedAction(app).async { implicit request =>
     runQuery(Tables.PigComponents).map(q =>
       Ok(views.html.components(request.user, q))
     )
@@ -39,11 +38,9 @@ class Components @Inject()(implicit val app: play.api.Application, val messagesA
       // Correct form
       createRequest => {
         runInsert(Tables.PigComponents +=
-          PigComponent(newUUID(), createRequest.name, createRequest.description, None, false, request.user.id)
-        ).mapAll {
-          case _ =>
-            Redirect(routes.Components.index())
-        }
+          PigComponent(newUUID(), createRequest.name, createRequest.description, None, published = false, request.user.id)
+        ).mapAll(_ =>
+          Redirect(routes.Components.indexGET()))
       }
     )
   }
@@ -64,7 +61,7 @@ class Components @Inject()(implicit val app: play.api.Application, val messagesA
       editRequest => {
         val newQuery = request.componentRow.copy(name = editRequest.name, description = editRequest.description)
         runInsert(Tables.PigComponents.insertOrUpdate(newQuery)).mapAll { _ =>
-          Redirect(routes.Components.index())
+          Redirect(routes.Components.indexGET())
         }
       }
     )
@@ -78,13 +75,13 @@ class Components @Inject()(implicit val app: play.api.Application, val messagesA
       .delete)
     future
       .map(i => {
-        Redirect(routes.Components.index())
+        Redirect(routes.Components.indexGET())
       })
       .recover { case f => Unauthorized(f.toString) }
   }
 
   def editor(id: String) = (AuthedAction(app) andThen ReadComponentFromId(app, id)) { request =>
-    Ok(views.html.editor(request.user, request.cookies, id,true, loadDataSources(), loadPublishedComponents()))
+    Ok(views.html.editor(request.user, request.cookies, id, isComponent = true, loadDataSources(), loadPublishedComponents()))
   }
 
 }

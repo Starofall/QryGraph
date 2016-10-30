@@ -8,7 +8,7 @@ class ClientStateTest extends FunSpec {
   describe("ClientState") {
     it("should start with a valid graph") {
       val x = new ClientState()
-      assert(x.graph == new PigQueryGraph())
+      assert(x.graph == PigQueryGraph())
     }
 
   }

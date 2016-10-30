@@ -20,7 +20,6 @@ import ExecutionContext.Implicits.global
   */
 class ClientConnectionActor(clientActor: ActorRef) extends Actor {
 
-
   /** this explains the pickler how to pickle and unpickle objects */
   implicit val messagePickler = SharedMessages.messagePickler
 
@@ -51,6 +50,7 @@ class ClientConnectionActor(clientActor: ActorRef) extends Actor {
 
   /** creating a new webSocket instance is used to connect to Server */
   def createWebSocket(ic: InitConfiguration): WebSocket = {
+    // to simplify component vs query editing we check if a queryId is given, else we assume it is a component
     val url = if(ic.queryId != ""){
       "ws://" + window.location.hostname + ":" + window.location.port + "/webSocket?qgtoken=" + ic.authToken + "&queryId=" + ic.queryId
     }else{
@@ -67,18 +67,15 @@ class ClientConnectionActor(clientActor: ActorRef) extends Actor {
   /** webSocket is trying to connect */
   def onConnect(e: Event) {
     clientActor ! IConnectionEstablished()
-    updateConnectionStatus()
   }
 
   /** webSocket error in connection */
   def onError(e: Event): Unit = {
     println("Connection Error... trying to reconnect")
-    updateConnectionStatus()
   }
 
   /** webSocket connection closed */
   def onClose(e: Event) {
-    updateConnectionStatus()
     setTimeout(() => {
       initConfiguration.foreach(ic => webSocket = Some(createWebSocket(ic)))
     }, 100)
@@ -93,17 +90,6 @@ class ClientConnectionActor(clientActor: ActorRef) extends Actor {
       case Failure(exception) => println("Was not able to unpickle server message: " + exception)
       case Success(value)     => self ! value
     }
-  }
-
-  def updateConnectionStatus(): Unit = {
-    //    def getStatus: String = webSocket.map { ws=>
-    //      ws.readyState match {
-    //        case 0 => "Connecting"
-    //        case 1 => "Connected"
-    //        case 2 => "Closing"
-    //        case 3 => "Disconnected"
-    //      }
-    //    }
   }
 
   /** the behaviour as an akka instance */

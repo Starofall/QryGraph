@@ -8,7 +8,7 @@ import models.{DatabaseAccess, LoginAccess}
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Action, Controller, Cookie}
+import play.api.mvc.{Controller, Cookie}
 import util.Actions._
 import util.FutureEnhancements._
 
@@ -34,7 +34,7 @@ class Auth @Inject()(implicit val app: play.api.Application, val messagesApi: Me
         tryLogin(loginRequest.email, loginRequest.password).mapAll {
           case Success(Some(result)) =>
             Logger.info(s"Correct login for email: " + result._1.email)
-            Redirect(routes.Queries.index()).withCookies(Cookie("qgtoken", result._2.token))
+            Redirect(routes.Queries.indexGET()).withCookies(Cookie("qgtoken", result._2.token))
 
           case Success(None) =>
             Logger.info(s"Login wrong for email: " + loginRequest.email)
@@ -52,10 +52,6 @@ class Auth @Inject()(implicit val app: play.api.Application, val messagesApi: Me
     Redirect(routes.Auth.loginGET()).withCookies(Cookie("qgtoken", ""))
   }
 
-  def register() = Action {
-
-    Ok("depricated")
-  }
 }
 
 

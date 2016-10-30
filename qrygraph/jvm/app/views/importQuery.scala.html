@@ -3,19 +3,20 @@
 
 @import models.Tables.PigQuery
 @import controllers.forms.PigQueryForm
-@(usersRow: User, pigQueryForm: Form[PigQueryForm])(implicit messages: Messages)
+@import controllers.forms.PigQueryImportForm
+@(usersRow: User, pigQueryForm: Form[PigQueryImportForm])(implicit messages: Messages)
 
 @header("Create Query", usersRow) {
     <!-- Page Content -->
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <h1>Create Query</h1>
-                <p class="lead">Here you can create a new query</p>
+                <h1>Import Query</h1>
+                <p class="lead">Here you can import an existing PigQuery</p>
             </div>
         </div>
         <div class="row">
-        @b3.form(routes.Queries.createPOST()) {
+        @b3.form(routes.Queries.importPOST()) {
             @b3.text(pigQueryForm("name"), '_label -> "Name", 'placeholder -> "Monthly report")
             @b3.text(pigQueryForm("description"), '_label -> "Description", 'placeholder -> "Goal of this query")
 
@@ -48,6 +49,10 @@
                     <input type="text" id="cronjob" name="cronjob" value="">
                 </div>
             </div>
+
+
+            @b3.text(pigQueryForm("importString"), '_label -> "Pig Query", 'placeholder -> "Copy Pig Code here")
+
 
             @if(pigQueryForm.hasGlobalErrors) {
                 @for(error <- pigQueryForm.globalErrors) {

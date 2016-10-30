@@ -4,10 +4,8 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import org.mindrot.jbcrypt.BCrypt
 
-/**
-  * Created by info on 15.06.2016.
-  */
-trait LoginAccess extends DatabaseAccess{
+/** injects access to user management */
+trait LoginAccess extends DatabaseAccess {
 
   // database import
   import Tables._
@@ -18,7 +16,7 @@ trait LoginAccess extends DatabaseAccess{
   import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
   /** adds a new user to the database */
-  def addUser(email: String, password: String,firstName:String,lastName:String): Future[Either[String, Unit]] = {
+  def addUser(email: String, password: String, firstName: String, lastName: String): Future[Either[String, Unit]] = {
     val newUser = User(newUUID(), email.toLowerCase(), BCrypt.hashpw(password, BCrypt.gensalt()), firstName, lastName, "user", None)
     runInsert(Users += newUser).mapAll {
       case Success(s) => Right(())
@@ -40,6 +38,7 @@ trait LoginAccess extends DatabaseAccess{
     }
   }
 
+  /** checks for a token in the database and returns a option of a user */
   def checkToken(token: String): Future[Option[User]] = {
     val registeredUser = for {
       userId <- UserTokens.filter(_.token === token).map(_.userId)

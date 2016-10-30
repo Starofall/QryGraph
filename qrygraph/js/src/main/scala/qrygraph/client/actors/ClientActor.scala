@@ -42,12 +42,12 @@ class ClientActor extends Actor {
   def handleUIEvents: PartialFunction[UIEvent, Unit] = {
 
     case UINodeActivated(nodeId) =>
+      UI.RightToolbar.show()
       state.graph.getNodeById(nodeId).map(n => {
         // save to state
         state.activatedNodeOption = Some(n)
         UI.updateRightEditBar(state)
       })
-      UI.RightToolbar.show()
 
     case UIUndoChange() =>
       state.undoChange()
@@ -69,7 +69,7 @@ class ClientActor extends Actor {
 
     case UIUpdateFieldValue(nodeId, valueName, newValue) => updateAndUpload(valueName match {
       case "name" => state.graph.applyToNodeId(nodeId, _.applyValueChanges("name", NodeHelper.assureValidNodeName(newValue, state.graph.nodes.map(_.name))))
-      case _      => state.graph.applyToNodeId(nodeId, _.applyValueChanges(valueName, newValue))
+      case _      => state.graph.applyToNodeId(nodeId, _.applyValueChanges(valueName, newValue.replaceAll(";","")/** prevent pig injection */))
     })
 
     case UINodeMoved(nodeId, newX, newY)    => updateAndUpload(state.graph.applyToNodeId(nodeId, n => NodeHelper.nodePositionHelper(n, n.position.copy(x = newX, y = newY))))
@@ -118,7 +118,7 @@ class ClientActor extends Actor {
     case in: InternalEvent => handleInternalEvents(in)
     case x: ServerToClient => handleServerMessages(x)
     case ui: UIEvent       => handleUIEvents(ui)
-    case x: ClientToServer => networkIO ! x //ClientToServer are send over networkIO
+    case x: ClientToServer => networkIO ! x // ClientToServer are send over networkIO
     case _                 => println("ClientActor got something undefined")
   }
 }

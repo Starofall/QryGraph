@@ -37,7 +37,8 @@ class PigQueryGraphTest extends FunSpec {
 
 
   describe("Example Graph with open Inputs/Outputs"){
-    val defaultDataSource = DataSource("A","test","desc","url",List())
+    val defaultDataSource = QueryLoadSource("data","name","desc","LOAD 'bla.csv' ")
+
     // Create a demo graph
     val l1 = LoadNode("l1","load1",defaultDataSource)
     val u1 = UnionNode("u1","union1")
@@ -53,61 +54,5 @@ class PigQueryGraphTest extends FunSpec {
       assert(component.pigQueryGraph.openOutputs == List(u1.outputs(0)))
     }
   }
-
-//  test("testIncomingNode") {
-//
-//  }
-//
-//  test("testAddNode") {
-//
-//  }
-//
-//  test("testOpenOutputs") {
-//
-//  }
-//
-//  test("testApplyToNodeId") {
-//
-//  }
-//
-//  test("testIncomingOutput") {
-//
-//  }
-//
-//  test("testGetInputById") {
-//
-//  }
-//
-//  test("testAddEdge") {
-//
-//  }
-//
-//  test("testGetOutputById") {
-//
-//  }
-//
-//  test("testRemoveNode") {
-//
-//  }
-//
-//  test("testOutgoingNode") {
-//
-//  }
-//
-//  test("testOpenInputs") {
-//
-//  }
-//
-//  test("testGetNodeById") {
-//
-//  }
-//
-//  test("testRemoveEdge") {
-//
-//  }
-//
-//  test("testOutputOnly") {
-//
-//  }
 
 }

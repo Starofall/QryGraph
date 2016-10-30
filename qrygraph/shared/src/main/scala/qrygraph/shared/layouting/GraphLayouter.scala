@@ -8,6 +8,8 @@ import qrygraph.shared.data.{Node, PigQueryGraph}
   */
 object GraphLayouter {
 
+  // MISSING IMPLEMENTATION!
+
   private case class LayoutNode(node: Node, x: Int = 0, y: Int = 0)
 
   def layoutQrygraph(qrygraph: PigQueryGraph): PigQueryGraph = {
