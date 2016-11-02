@@ -54,11 +54,11 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
     )
   }
 
-  def importGET = AuthedAction(app) { request =>
+  def importGET = AdminAction(app) { request =>
     Ok(views.html.importQuery(request.user, PigQueryImportForm.form))
   }
 
-  def importPOST = AuthedAction.async { implicit request =>
+  def importPOST = AdminAction.async { implicit request =>
     PigQueryImportForm.form.bindFromRequest.fold(
       // Form errors
       formWithErrors => {
