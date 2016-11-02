@@ -1,10 +1,12 @@
 package util
 
+import akka.stream.Materializer
 import controllers.routes
 import models.Tables._
 import models.{DBEnums, DatabaseAccess, LoginAccess}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.{ActionTransformer, _}
+import play.api.routing.Router.Tags
 import play.api.{Application, Logger}
 
 import scala.concurrent.Future
@@ -123,6 +125,7 @@ object Actions {
   case class ComponentRequest[A](componentRow: PigComponent, request: UserRequest[A]) extends WrappedRequest[A](request) {
     def user = request.user
   }
+
   /** logs the user/request informations to the console */
   object LogAction extends ActionFilter[UserOptionalRequest] {
     protected def filter[B](request: UserOptionalRequest[B]): Future[Option[Result]] = {
