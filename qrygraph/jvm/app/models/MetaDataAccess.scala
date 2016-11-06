@@ -47,6 +47,6 @@ trait MetaDataAccess {
   }
 
   /** load the global setting blocking */
-  val globalSetting = Await.result(runQuerySingle(Tables.GlobalSettings), 5.seconds).getOrElse(GlobalSetting("", "", "", "", ""))
+  def globalSetting = Await.result(runQuerySingle(Tables.GlobalSettings), 5.seconds).getOrElse(GlobalSetting("", "", "", "", ""))
 
 }
