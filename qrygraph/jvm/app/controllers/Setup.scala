@@ -16,6 +16,7 @@ import util.Actions.CheckSetup
 import util.HDFS
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 @Singleton
 class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: MessagesApi) extends Controller with I18nSupport with DatabaseAccess {
@@ -23,11 +24,11 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
   import dbConfig.driver.api._
   import util.FutureEnhancements._
 
-  def indexGET = CheckSetup(app,continueOnDone = false) { implicit request =>
+  def indexGET = CheckSetup(app, continueOnDone = false) { implicit request =>
     Ok(views.html.setup(SetupForm.form))
   }
 
-  def indexPOST = CheckSetup(app,continueOnDone = false).async { implicit request =>
+  def indexPOST = CheckSetup(app, continueOnDone = false).async { implicit request =>
     // On deployment, set the correct home dir
     if (!System.getProperty("user.dir").contains(":")) {
       Logger.info("Old user.dir: " + System.getProperty("user.dir"))
@@ -49,8 +50,8 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
             GlobalSettings += newGlobalSettings,
             Users += User("1", setupForm.email, BCrypt.hashpw(setupForm.password, BCrypt.gensalt()), setupForm.firstName, setupForm.lastName, DBEnums.RoleAdmin, None),
 
-            DataSources.insertOrUpdate(DataSource("1","Example"
-              ,"A example database containing 'Most Popular Baby Names by Sex and Mother's Ethnic Group, New York City' from data.gov"
+            DataSources.insertOrUpdate(DataSource("1", "Example"
+              , "A example database containing 'Most Popular Baby Names by Sex and Mother's Ethnic Group, New York City' from data.gov"
               , s"LOAD '${setupForm.qrygraphFolder}/qrygraph-example.csv' USING PigStorage(',') AS " +
                 s"(YEAR:chararray,GENDER:chararray,ETHNIC:chararray,NAME:chararray,COUNT:int,RANK:int)"
             ))
@@ -60,8 +61,13 @@ class Setup @Inject()(implicit val app: play.api.Application, val messagesApi: M
           val fileName = "qrygraph-example.csv"
           // first try to get as a stream without "conf/" in path - this should work in dist production mode
           val inputStream = app.resourceAsStream(fileName).getOrElse(new FileInputStream(app.getFile(s"conf/$fileName")))
-          HDFS.writeStream(newGlobalSettings,fileName, inputStream)
-          Redirect(routes.Auth.loginGET())
+          // we try to upload a file to the system
+          try {
+            HDFS.writeStream(newGlobalSettings, fileName, inputStream)
+            Redirect(routes.Auth.loginGET())
+          } catch {
+            case NonFatal(e) => BadRequest(views.html.setup(SetupForm.form.bindFromRequest.withGlobalError("Can not connect to HDFS - check your configuration")))
+          }
         })
       }
     )

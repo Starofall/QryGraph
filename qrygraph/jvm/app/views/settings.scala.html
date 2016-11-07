@@ -83,6 +83,23 @@
                     </div>
                 </div>
                 <hr>
+                <div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h3>File Upload (Beta)</h3>
+                            <p class="lead small">Uploads a file to HDFS</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                    @helper.form(action = routes.Upload.uploadPOST, 'enctype -> "multipart/form-data") {
+                        <input type="file" name="file">
+                        <p>
+                            <input type="submit">
+                        </p>
+                    }
+                    </div>
+                </div>
+                <hr>
                 @b3.form(routes.Settings.indexPOST()) {
                     <h3>Hadoop Connection</h3>
                     <p class="lead small">Define the connection parameter for Hadoop</p>
