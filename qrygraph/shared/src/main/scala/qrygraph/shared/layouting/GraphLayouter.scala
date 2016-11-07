@@ -14,7 +14,7 @@ object GraphLayouter {
   private object LayoutNode {
 
     def findByName(node: Node, layoutNodes: List[LayoutNode]): LayoutNode = {
-      layoutNodes.find(layoutNode =>  layoutNode.node.name == node.name).get
+      layoutNodes.find(layoutNode => layoutNode.node.name == node.name).get
     }
 
   }
@@ -30,6 +30,7 @@ object GraphLayouter {
 
   /**
     * First arrange nodes vertically, then horizontally
+    *
     * @param qrygraph the original graph
     * @return the layouted graph
     */
@@ -39,14 +40,15 @@ object GraphLayouter {
 
   /**
     * Creates a new graph where nodes are arranged horizontally starting from the output.
+    *
     * @param qrygraph the original graph
     * @return the horizontally layouted graph
     */
   def layoutQrygraphHorizontally(qrygraph: PigQueryGraph): PigQueryGraph = {
     // first we wrap the nodes into layout nodes with mutable positions
-    val layoutNodes = qrygraph.nodes.map(node => LayoutNode(node))
+    val layoutNodes = qrygraph.nodes.map(LayoutNode(_))
     // find the output node
-    val outputNode = qrygraph.nodes.find(n => n.isInstanceOf[OutputNode]).get
+    val outputNode = qrygraph.nodes.find(_.isInstanceOf[OutputNode]).get
     // pass it to the recursive function
     horizontalLayoutStep(outputNode, qrygraph, layoutNodes)
     // now we apply the layoutNode positions to the nodes
@@ -60,10 +62,11 @@ object GraphLayouter {
   /**
     * Recursively goes through all nodes in the graph, from Output to leaves.
     * Sets their x's, and prepares provides information for setting the y's at later stages.
-    * @param node the node whose position has to be changed
+    *
+    * @param node            the node whose position has to be changed
     * @param qrygraph
     * @param layoutNodes
-    * @param step_count the multiplier of the x offset of the node
+    * @param step_count      the multiplier of the x offset of the node
     * @param branching_order which input the node corresponds to w.r.t its parent
     * @param parent_y_offset
     */
@@ -81,7 +84,7 @@ object GraphLayouter {
       val incomingNode = qrygraph.incomingNode(i)
 
       if (incomingNode.isDefined) {
-        val order = i.id.reverse.substring(0,1).toInt
+        val order = i.id.reverse.substring(0, 1).toInt
         horizontalLayoutStep(incomingNode.get, qrygraph, layoutNodes, step_count + 1, order, y_offset)
       }
     })
@@ -90,6 +93,7 @@ object GraphLayouter {
 
   /**
     * Creates a new graph where nodes, grouped by same x's, are arranged vertically .
+    *
     * @param qrygraph the original graph
     * @return the vertically layouted graph
     */
@@ -97,7 +101,7 @@ object GraphLayouter {
     // first we wrap the nodes into layout nodes with mutable positions
     val layoutNodes = qrygraph.nodes.map(LayoutNode(_))
     // start recursion
-    verticalLayoutStep(qrygraph,layoutNodes)
+    verticalLayoutStep(qrygraph, layoutNodes)
     // now we apply the layoutNode positions to the nodes
     val finalLayout = layoutNodes.map(n => {
       NodeHelper.nodePositionHelper(n.node, NodePosition(n.x, n.y))
@@ -109,6 +113,7 @@ object GraphLayouter {
   /**
     * Recursively goes through all nodes in the graph, from right-most to left-most ones.
     * Sets their y's for each group according to the order provided by the nodes' y offsets.
+    *
     * @param qrygraph
     * @param layoutNodes
     * @param step_count
@@ -116,7 +121,7 @@ object GraphLayouter {
   def verticalLayoutStep(qrygraph: PigQueryGraph, layoutNodes: List[LayoutNode], step_count: Integer = 0): Unit = {
     // find nodes at position x
     val x = initial_x - step_count * step_x
-    val nodes = qrygraph.nodes.filter(n => {n.position.x == x})
+    val nodes = qrygraph.nodes.filter(_.position.x == x)
 
     if (nodes.isEmpty) {
       // end of recursion, nothing to do
@@ -128,26 +133,21 @@ object GraphLayouter {
 
     size match {
 
-      case even if size % 2 == 0 => {
-        val upperList = sortedNodes.slice(0, size/2)
+      case even if size % 2 == 0 =>
+        val upperList = sortedNodes.slice(0, size / 2)
         setNodesAscending(upperList, layoutNodes, x, true)
-
-        val lowerList = sortedNodes.slice(size/2, size)
+        val lowerList = sortedNodes.slice(size / 2, size)
         setNodesDescending(lowerList, layoutNodes, x, true)
-      }
 
-      case odd => {
-        val upperList = sortedNodes.slice(0, size/2)
+      case odd =>
+        val upperList = sortedNodes.slice(0, size / 2)
         setNodesAscending(upperList, layoutNodes, x, false)
-
-        val middleNode = sortedNodes(size/2)
+        val middleNode = sortedNodes(size / 2)
         val layoutNode = LayoutNode.findByName(middleNode, layoutNodes)
         layoutNode.x = x
         layoutNode.y = initial_y
-
-        val lowerList = sortedNodes.slice(size/2+1,size)
+        val lowerList = sortedNodes.slice(size / 2 + 1, size)
         setNodesDescending(lowerList, layoutNodes, x, false)
-      }
     }
 
     verticalLayoutStep(qrygraph, layoutNodes, step_count + 1)
@@ -162,7 +162,7 @@ object GraphLayouter {
       var offset = step_count * step_y
       if (isEven && index == 0) {
         // so that we do not leave double space around the initial_y
-        offset = step_count * step_y/2
+        offset = step_count * step_y / 2
       }
       layoutNode.y = initial_y - offset
       setNodesAscending(nodes, layoutNodes, x, isEven, step_count)
@@ -178,7 +178,7 @@ object GraphLayouter {
       var offset = step_count * step_y
       if (isEven && index == 0) {
         // so that we do not leave double space around the initial_y
-        offset = step_count * step_y/2
+        offset = step_count * step_y / 2
       }
       layoutNode.y = initial_y + offset
       setNodesDescending(nodes, layoutNodes, x, isEven, step_count)

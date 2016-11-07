@@ -32,6 +32,7 @@ object NodeFormHelper {
   private def generateHTMLOptions(list: List[PField], selectedString: String): String = {
     // create a buffer to add option html
     var options = ""
+    options ++= s"<option value='none'>-none-</option>"
     list.foreach(f => {
       val selected = if (f.name == selectedString) "selected='selected'" else ""
       options ++= s"<option $selected value='${f.name}'>${f.name}</option>"
