@@ -10,8 +10,10 @@ import models.{DBEnums, DatabaseAccess, MetaDataAccess}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
-import prickle.Pickle
+import prickle.{Pickle, Unpickle}
 import qrygraph.shared.SharedMessages.PicklerImplicits
+import qrygraph.shared.compilation.QueryCompiler
+import qrygraph.shared.data.PigQueryGraph
 import qrygraph.shared.parser.PigScriptParser
 import services.PigExecution
 import util.Actions._
@@ -50,6 +52,23 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
           syncQuerySchedules()
           Redirect(routes.Queries.indexGET())
         }
+      }
+    )
+  }
+
+  def createPOSTAPI = AuthedAction.async { implicit request =>
+    PigQueryForm.form.bindFromRequest.fold(
+      // Form errors
+      formWithErrors => {
+        Future(BadRequest(views.html.createQuery(request.user, formWithErrors)))
+      },
+      // Correct form
+    createRequest => {
+        val newObject = PigQuery(newUUID(), createRequest.name, createRequest.description, None, None, undeployedChanges = false, request.user.id, DBEnums.AuthApproved, "waiting", createRequest.cronjob)
+        runInsert(Tables.PigQueries += newObject)
+          .mapAll { _ => {
+            Ok(newObject.id)
+          } }
       }
     )
   }
@@ -131,6 +150,18 @@ class Queries @Inject()(implicit val app: play.api.Application, val messagesApi:
   def editor(id: String) = (AuthedAction andThen ReadQueryFromId(app, id)) { request =>
     Ok(views.html.editor(request.user, request.cookies, id, isComponent = false, loadDataSources(), loadPublishedComponents()))
   }
+
+
+  def compile(id: String) = (AuthedAction andThen ReadQueryFromId(app, id)) { request =>
+    request.pigQueriesRow.serializedDraftQuerie match {
+      case Some(x) =>
+        def parsedQrygraphDraft = Unpickle[PigQueryGraph].fromString(x).get
+        Ok(QueryCompiler.compile(parsedQrygraphDraft).mkString("\n"))
+      case None    => NotFound("Query not available")
+    }
+
+  }
+
 
 }
 

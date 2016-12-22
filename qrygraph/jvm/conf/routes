@@ -21,6 +21,7 @@ POST        /upload                             @controllers.Upload.uploadPOST
 # Single Query CRUD
 GET         /query/create                       @controllers.Queries.createGET
 POST        /query/create                       @controllers.Queries.createPOST
+GET         /query/createapi                    @controllers.Queries.createPOSTAPI
 GET         /query/import                       @controllers.Queries.importGET
 POST        /query/import                       @controllers.Queries.importPOST
 GET         /query/edit/:id                     @controllers.Queries.editGET(id:String)
@@ -31,7 +32,7 @@ POST        /query/delete/:id                   @controllers.Queries.deleteQuery
 GET         /query/results/:id                  @controllers.Queries.results(id:String)
 GET         /query/run/:id                      @controllers.Queries.run(id:String)
 GET         /query/editor/:id                   @controllers.Queries.editor(id:String)
-
+GET         /query/compile/:id                  @controllers.Queries.compile(id:String)
 # Components
 GET         /components                         @controllers.Components.indexGET
 GET         /components/editor/:id              @controllers.Components.editor(id:String)
